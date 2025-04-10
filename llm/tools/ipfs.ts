@@ -1,4 +1,6 @@
 import { PinataSDK } from "pinata";
+import { DynamicStructuredTool } from "@langchain/core/tools";
+import { z } from "zod";
 import "dotenv/config";
 
 const pinata = new PinataSDK({
@@ -6,12 +8,6 @@ const pinata = new PinataSDK({
   pinataGateway: process.env.GATEWAY_URL,
 });
 
-/**
- * Uploads a file to IPFS using the Pinata SDK.
- * @param name - The name of the file to upload.
- * @param content - The content of the file to upload.
- * @returns The IPFS hash of the uploaded file.
- */
 export async function upload_to_ipfs(name: string, content: string) {
   try {
     const file = new File([content], name, {
@@ -26,3 +22,15 @@ export async function upload_to_ipfs(name: string, content: string) {
     throw error;
   }
 }
+
+export const ipfsUploadTool = new DynamicStructuredTool({
+  name: "ipfs_upload",
+  description: "Upload content to IPFS using Pinata",
+  schema: z.object({
+    name: z.string().describe("The name of the file to upload"),
+    content: z.string().describe("The content to upload to IPFS"),
+  }),
+  func: async ({ name, content }) => {
+    return upload_to_ipfs(name, content);
+  },
+});
