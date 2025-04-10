@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[linear-gradient(135deg,#1a1a1a_0%,#2c1810_100%)] text-[#f0e6d2] min-h-screen font-['Cinzel'];
+  }
+}
+
+@layer components {
+  .connect-button {
+    @apply bg-[linear-gradient(135deg,#8b4513_0%,#654321_100%)] border-2 border-[#d4af37] rounded-lg px-8 py-4 text-[#f0e6d2] text-xl font-['Cinzel'] cursor-pointer transition-all duration-300 flex items-center gap-2 mx-auto hover:-translate-y-0.5 hover:shadow-lg;
+  }
+
+  .connected-wallet {
+    @apply bg-black/30 p-4 rounded-lg border border-[#d4af37] text-center;
+  }
+
+  .wallet-address {
+    @apply font-mono text-[#d4af37];
+  }
+
+  .game-section {
+    @apply mt-12 bg-black/20 rounded-xl p-8 border border-[#d4af37];
+  }
+
+  .character-sheet {
+    @apply bg-black/40 p-8 rounded-lg border border-[#b87333];
+  }
+}
+
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.fantasy-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+h1 {
+  font-size: 4rem;
+  margin: 0;
+  color: #d4af37;
+  font-family: "MedievalSharp", cursive;
+}
+
+h2 {
+  font-size: 2rem;
+  margin: 0.5rem 0;
+  color: #b87333;
+}
+
+.button-icon {
+  font-size: 1.5rem;
+}
+
+h3 {
+  color: #d4af37;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
