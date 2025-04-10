@@ -62,7 +62,7 @@ export const systemMessageText = `
   You are a storyteller.
  
  ## Instructions
- 
+  
   ## Style Guidelines
   ${styleGuidelines}
   `;
@@ -76,8 +76,8 @@ export const promptStoryteller = async (input: string) => {
 };
 
 export const storyTellerAgent = createReactAgent({
-  llm: gpt4omini,
-  tools: [],
-  prompt: systemMessageText,
-  name: "Storyteller",
+	llm: gpt4omini,
+	tools: [],
+	prompt: systemMessageText,
+	name: "Storyteller",
 });

@@ -3,7 +3,8 @@ import { z } from "zod";
 import PinataSDK from "@pinata/sdk";
 import type { PinataConfig } from "@pinata/sdk";
 import type { UploadResponse } from "pinata";
-import { pinata } from "../utils/pinata";
+import { z } from "zod";
+import { heroSchema } from "../schemas";
 
 // Define the schema first
 const heroSchema = z.object({
@@ -45,19 +46,12 @@ export async function upload_json_to_ipfs(
 }
 
 export const uploadHeroTool = new DynamicStructuredTool({
-  name: "uploadHero",
-  description: "Upload a Hero to IPFS using Pinata",
-  schema: heroSchema,
-  func: async (input) => {
-    try {
-      const result = await pinata.pinJSONToIPFS(input);
-      return `Hero uploaded successfully! IPFS Hash: ${result.IpfsHash}`;
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error occurred";
-      return `Error uploading hero: ${errorMessage}`;
-    }
-  },
+	name: "uploadHero",
+	description: "Upload a Hero to IPFS using Pinata",
+	schema: heroSchema,
+	func: async ({ name, content }) => {
+		return upload_json_to_ipfs(name, content);
+	},
 });
 
 export async function upload_image_to_ipfs(

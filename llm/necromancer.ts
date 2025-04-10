@@ -3,10 +3,11 @@ import { MemorySaver } from "@langchain/langgraph";
 import { createSupervisor } from "@langchain/langgraph-supervisor";
 import { z } from "zod";
 import { dreamerAgent } from "./dreamer";
-import { gpt4omini, llama31withTools } from "./models";
+import { gpt4omini, gpt4ominiLowTemp, llama31withTools } from "./models";
 import { recruiterAgent } from "./recruiter";
 import { storyTellerAgent } from "./storyteller";
 import { displayImageTool, uploadHeroTool, uploadImageTool } from "./tools";
+import { createQuestTool, recruitHeroTool, startQuestTool } from "./tools/ethereum";
 
 export const promptNecro = async (message: string) => {
   const response = await llama31withTools.invoke(message);
@@ -39,14 +40,20 @@ const GAME_LOGIC = `
   - Upload character image to ipfs using uploadImageTool.
   - Use the uploadHeroTool to persist a character to ipfs.
   - Display the image using the displayImageTool using the local image path.
+  - **IMPORTANT** Mint character on chain by using the recruitHeroTool. Pass in the wallet address of the original user query to this tool.
+  - Return the character id to the user.
+  
+  ### Starting a Quest
+  - When a new quest is to be started, ask the storyTellerAgent to generate a new quest decription and scenario.
+  - When a quest is to be started, call the startQuestTool to create a new quest.
   `;
 
 const necromancerAgent = createSupervisor({
   includeAgentName: "inline",
   supervisorName: "Necromancer",
   agents: [storyTellerAgent, dreamerAgent, recruiterAgent],
-  llm: gpt4omini,
-  tools: [uploadHeroTool, uploadImageTool, displayImageTool],
+  llm: gpt4ominiLowTemp,
+  tools: [uploadHeroTool, uploadImageTool, displayImageTool,createQuestTool,startQuestTool, recruitHeroTool ],
   prompt: GAME_LOGIC,
 });
 
