@@ -9,10 +9,10 @@ const pinata = new PinataSDK({
   pinataGateway: process.env.GATEWAY_URL,
 });
 
-export async function upload_to_ipfs(name: string, content: string): Promise<UploadResponse> {
+export async function upload_to_ipfs(name: string, content: object): Promise<UploadResponse> {
   try {
-    const file = new File([content], name, {
-      type: "text/plain",
+    const file = new File([JSON.stringify(content)], name, {
+      type: "text/json",
     });
     const upload = await pinata.upload.public.file(file);
     console.log(upload);
@@ -24,12 +24,20 @@ export async function upload_to_ipfs(name: string, content: string): Promise<Upl
   }
 }
 
-export const ipfsUploadTool = new DynamicStructuredTool({
-  name: "ipfs_upload",
-  description: "Upload content to IPFS using Pinata",
+export const uploadHeroTool = new DynamicStructuredTool({
+  name: "uploadHero",
+  description: "Upload a Hero to IPFS using Pinata",
   schema: z.object({
     name: z.string().describe("The name of the file to upload"),
-    content: z.string().describe("The content to upload to IPFS"),
+    content: z.object({
+      name: z.string().describe("The name of the hero"),
+      description: z.string().describe("The description of the hero"),
+      image: z.string().describe("The image of the hero"),
+      attributes: z.array(z.object({
+        attack: z.string().describe("The attack of the hero"),
+        value: z.string().describe("The attack value of the hero"),
+      })).describe("The attributes of the hero"),
+    }).describe("The content to upload to IPFS"),
   }),
   func: async ({ name, content }) => {
     return upload_to_ipfs(name, content);
