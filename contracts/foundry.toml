@@ -13,6 +13,9 @@ quote_style = "double"
 tab_width = 4
 wrap_comments = true
 
+[rpc_endpoints]
+local = "http://127.0.0.1:8545"
+
 [soldeer]
 # whether soldeer manages remappings
 remappings_generate = true

@@ -6,7 +6,7 @@ import { ERC721 } from "@openzeppelin-contracts/token/ERC721/ERC721.sol";
 import { ERC721Enumerable } from "@openzeppelin-contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import { Ownable } from "@openzeppelin-contracts/access/Ownable.sol";
 
-contract Hero is ERC721, ERC721Enumerable, Ownable {
+contract Tavern is ERC721, ERC721Enumerable, Ownable {
     // Hero stats:
     struct Stats {
         uint256 strength;
@@ -17,11 +17,9 @@ contract Hero is ERC721, ERC721Enumerable, Ownable {
         uint256 constitution;
     }
 
-    struct HeroInfo {
+    struct Hero {
         string name;
         uint256 level;
-        string class;
-        address quest;
         string metadataUrl;
         uint256 cooldown;
         Stats stats;
@@ -31,8 +29,9 @@ contract Hero is ERC721, ERC721Enumerable, Ownable {
                                      STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
+    address _quest;
     uint256 private _nextHeroId;
-    mapping(uint256 heroId => HeroInfo) private _heroes;
+    mapping(uint256 heroId => Hero) private _heroes;
 
     /*//////////////////////////////////////////////////////////////////////////
                                 PUBLIC FUNCTIONS
@@ -40,8 +39,14 @@ contract Hero is ERC721, ERC721Enumerable, Ownable {
 
     constructor(address initialOwner) ERC721("Hero", "HERO") Ownable(initialOwner) { }
 
-    modifier onlyQuest(uint256 heroId) {
-        require(msg.sender == _heroes[heroId].quest, "Not authorized");
+    // One time setter for the quest contract.
+    function setQuest(address quest) external onlyOwner {
+        require(_quest == address(0), "Quest already set");
+        _quest = quest;
+    }
+
+    modifier onlyQuest() {
+        require(msg.sender == _quest, "Not a quest contract");
         _;
     }
 
@@ -51,43 +56,35 @@ contract Hero is ERC721, ERC721Enumerable, Ownable {
         string calldata uri,
         Stats calldata initialStats
     )
-        public
+        external
         onlyOwner
         returns (uint256)
     {
         uint256 heroId = _nextHeroId++;
         _safeMint(master, heroId);
 
-        _heroes[heroId] = HeroInfo({
-            name: name,
-            level: 1,
-            class: "Warrior",
-            quest: address(0),
-            metadataUrl: uri,
-            cooldown: 0,
-            stats: initialStats
-        });
+        _heroes[heroId] = Hero({ name: name, level: 1, metadataUrl: uri, cooldown: 0, stats: initialStats });
 
         return heroId;
     }
 
-    function heroInfo(uint256 id) public view returns (HeroInfo memory) {
+    function heroInfo(uint256 id) external view returns (Hero memory) {
         require(_heroes[id].level > 0, "Unknown hero");
         return _heroes[id];
     }
 
-    function levelUp(uint256 heroId) public onlyQuest(heroId) {
-        HeroInfo storage hero = _heroes[heroId];
+    function levelUp(uint256 heroId) external onlyQuest {
+        Hero storage hero = _heroes[heroId];
         hero.level++;
     }
 
-    function setCooldown(uint256 heroId, uint256 period) public onlyQuest(heroId) {
-        HeroInfo storage hero = _heroes[heroId];
+    function setCooldown(uint256 heroId, uint256 period) external onlyQuest {
+        Hero storage hero = _heroes[heroId];
         hero.cooldown = block.timestamp + period;
     }
 
-    function isActive(uint256 heroId) public view returns (bool) {
-        HeroInfo storage hero = _heroes[heroId];
+    function isActive(uint256 heroId) external view returns (bool) {
+        Hero storage hero = _heroes[heroId];
         return block.timestamp >= hero.cooldown;
     }
 
