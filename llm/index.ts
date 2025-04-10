@@ -69,10 +69,10 @@ async function main() {
         {
           messages: [{ role: "user", content: prompt }],
         },
-        config,
+        config
       );
       console.log(
-        resp.messages.map((msg) => ({ content: msg.content, name: msg.name })),
+        resp.messages.map((msg) => ({ content: msg.content, name: msg.name }))
       );
       break;
     }
@@ -83,25 +83,25 @@ async function main() {
       assert(imageBase64, "No image generated!");
       const imageData = Buffer.from(imageBase64, "base64");
 
-			await Bun.write("./dream.png", imageData);
-			const imageInTerminal = await terminalImage.buffer(imageData, {
-				width: "50%",
-			});
-			console.log(imageInTerminal);
-			break;
-		}
-		case "storyteller": {
-			const resp = await promptStoryteller(prompt);
-			console.log(resp);
-			break;
-		}
-		case "recruiter": {
-			break;
-		}
-		case "invoker": {
-			const resp = await promptInvoker(prompt);
-			console.log(resp);
-			break;
+      await Bun.write("./dream.png", imageData);
+      const imageInTerminal = await terminalImage.buffer(imageData, {
+        width: "50%",
+      });
+      console.log(imageInTerminal);
+      break;
+    }
+    case "storyteller": {
+      const resp = await promptStoryteller(prompt);
+      console.log(resp);
+      break;
+    }
+    case "recruiter": {
+      break;
+    }
+    case "invoker": {
+      const resp = await promptInvoker(prompt);
+      console.log(resp);
+      break;
     }
     case "storyteller": {
       const resp = await promptStoryteller(prompt);
