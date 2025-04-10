@@ -1,4 +1,5 @@
 import { PinataSDK } from "pinata";
+import type { UploadResponse } from "pinata";
 import { DynamicStructuredTool } from "@langchain/core/tools";
 import { z } from "zod";
 import "dotenv/config";
@@ -8,7 +9,7 @@ const pinata = new PinataSDK({
   pinataGateway: process.env.GATEWAY_URL,
 });
 
-export async function upload_to_ipfs(name: string, content: string) {
+export async function upload_to_ipfs(name: string, content: string): Promise<UploadResponse> {
   try {
     const file = new File([content], name, {
       type: "text/plain",
