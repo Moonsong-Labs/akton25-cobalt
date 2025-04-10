@@ -14,6 +14,7 @@ import {
 	questStatusToNumber,
 	taskToNumber,
 	outcomeToNumber,
+	type TavernContract,
 } from "./ethereum";
 
 // Anvil test setup
@@ -57,7 +58,7 @@ const setupTest = async () => {
 		tavernAddress,
 		Tavern.abi,
 		signer,
-	);
+	) as TavernContract;
 	await tavern.setQuest(questAddress);
 
 	return {
