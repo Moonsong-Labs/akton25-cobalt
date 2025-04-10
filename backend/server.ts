@@ -44,6 +44,8 @@ const server = Bun.serve({
                 },
               ],
             };
+
+            console.log("input", input);
             // Use a new thread ID for each invocation if necessary
             const config = { configurable: { thread_id: uuidv4() } };
 

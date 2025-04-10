@@ -4,11 +4,11 @@ import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { z } from "zod";
 import {
-	deepSeekV3,
-	geminiFlash,
-	gpt4omini,
-	llama4Maverick,
-	mistralSmall,
+  deepSeekV3,
+  geminiFlash,
+  gpt4omini,
+  llama4Maverick,
+  mistralSmall,
 } from "./models";
 
 const styleGuidelines = `
@@ -85,14 +85,14 @@ export const systemMessageText = `
 const systemMessage = new SystemMessage(systemMessageText);
 
 export const promptStoryteller = async (input: string) => {
-	const humanMessage = new HumanMessage(`The events as known are: ${input}`);
-	const { content } = await geminiFlash.invoke([systemMessage, humanMessage]);
-	return content;
+  const humanMessage = new HumanMessage(`The events as known are: ${input}`);
+  const { content } = await geminiFlash.invoke([systemMessage, humanMessage]);
+  return content;
 };
 
 export const storyTellerAgent = createReactAgent({
-	llm: geminiFlash,
-	tools: [],
-	prompt: systemMessageText,
-	name: "Storyteller",
+  llm: gpt4omini,
+  tools: [],
+  prompt: systemMessageText,
+  name: "Storyteller",
 });
