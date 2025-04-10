@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-[linear-gradient(135deg,#1a1a1a_0%,#2c1810_100%)] text-[#f0e6d2] min-h-screen font-['Cinzel'];
+    @apply bg-[linear-gradient(135deg,#1a1a1a_0%,#2c1810_100%)] text-[#f0e6d2] min-h-screen font-['Cinzel'] overflow-hidden;
   }
 }
 
@@ -117,6 +117,311 @@
 
   .history-action {
     @apply text-[#d4af37] font-['Cinzel'];
+  }
+
+  .waiting-room {
+    @apply space-y-8;
+  }
+
+  .heroes-list,
+  .available-quests {
+    @apply bg-black/30 p-6 rounded-lg border border-[#b87333];
+  }
+
+  .hero-card {
+    @apply flex justify-between items-center p-4 bg-black/20 rounded-lg border border-[#d4af37] mb-2;
+  }
+
+  .hero-name {
+    @apply text-lg font-['Cinzel'] text-[#f0e6d2];
+  }
+
+  .hero-level {
+    @apply text-sm text-[#d4af37];
+  }
+
+  .quest-card {
+    @apply flex justify-between items-center p-4 bg-black/20 rounded-lg border border-[#d4af37] mb-2;
+  }
+
+  .quest-title {
+    @apply text-lg font-['Cinzel'] text-[#f0e6d2];
+  }
+
+  .chat-panel {
+    @apply w-80 bg-black/30 rounded-lg border border-[#d4af37] flex flex-col h-[600px];
+  }
+
+  .chat-header {
+    @apply p-4 border-b border-[#d4af37] flex justify-between items-center;
+  }
+
+  .toggle-chat {
+    @apply text-[#d4af37] text-xl cursor-pointer hover:text-[#f0e6d2] transition-colors;
+  }
+
+  .chat-messages {
+    @apply flex-1 overflow-y-auto p-4 space-y-2;
+  }
+
+  .chat-message {
+    @apply bg-black/20 p-2 rounded-lg text-sm;
+  }
+
+  .message-time {
+    @apply text-[#d4af37]/70 text-xs mr-2;
+  }
+
+  .message-text {
+    @apply text-[#f0e6d2];
+  }
+
+  .quest-log-popup,
+  .tavern-popup {
+    @apply fixed bottom-20 left-1/2 transform -translate-x-1/2 w-full max-w-2xl bg-black/90 rounded-t-lg border border-[#d4af37] z-50;
+  }
+
+  .quest-log-header,
+  .tavern-header {
+    @apply p-4 border-b border-[#d4af37] flex justify-between items-center;
+  }
+
+  .toggle-log,
+  .toggle-tavern {
+    @apply text-[#d4af37] text-xl cursor-pointer hover:text-[#f0e6d2] transition-colors;
+  }
+
+  .quest-log-messages {
+    @apply h-48 overflow-y-auto p-4 space-y-2;
+  }
+
+  .quest-log-message {
+    @apply bg-black/20 p-2 rounded-lg text-sm;
+  }
+
+  .tavern-content {
+    @apply p-4;
+  }
+
+  .bottom-nav {
+    @apply fixed bottom-0 left-0 right-0 bg-black/90 border-t border-[#d4af37] flex justify-center gap-8 p-4;
+  }
+
+  .nav-button {
+    @apply flex flex-col items-center gap-1 text-[#f0e6d2] hover:text-[#d4af37] transition-colors;
+  }
+
+  .nav-button.disabled {
+    @apply opacity-50 cursor-not-allowed hover:text-[#f0e6d2];
+  }
+
+  .nav-button span:last-child {
+    @apply text-sm font-['Cinzel'];
+  }
+
+  .connection-prompt {
+    @apply fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-[#d4af37] text-black px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in-out;
+  }
+
+  .prompt-text {
+    @apply font-['Cinzel'] text-center;
+  }
+
+  @keyframes fade-in-out {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, 20px);
+    }
+    10% {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+    90% {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-50%, 20px);
+    }
+  }
+
+  .animate-fade-in-out {
+    animation: fade-in-out 3s ease-in-out forwards;
+  }
+
+  .background-container {
+    @apply fixed inset-0 overflow-hidden pointer-events-none;
+  }
+
+  .background-element {
+    @apply absolute w-16 h-16;
+  }
+
+  .background-element svg {
+    @apply w-full h-full;
+  }
+
+  .dragon {
+    @apply top-1/4 right-0;
+    width: 100px;
+    height: 100px;
+    animation: flyDragon 200s linear infinite;
+  }
+
+  .sword-fight {
+    @apply left-1/4 top-1/3;
+    animation: swordFight 8s ease-in-out infinite;
+  }
+
+  .beer-mug {
+    @apply right-1/3 bottom-1/4;
+    animation: floatBeer 6s ease-in-out infinite;
+  }
+
+  .wizard {
+    @apply left-1/3 top-1/2;
+    animation: castSpell 10s ease-in-out infinite;
+  }
+
+  .treasure {
+    @apply right-1/4 bottom-1/3;
+    animation: sparkle 4s ease-in-out infinite;
+  }
+
+  .ghost {
+    position: absolute;
+    left: 82.666%;
+    top: 86.666%;
+    animation: floatGhost 12s ease-in-out infinite;
+  }
+
+  .portal {
+    position: absolute;
+    right: 86.666%;
+    bottom: 16.666%;
+    animation: portalPulse 15s ease-in-out infinite;
+  }
+
+  .scroll {
+    position: absolute;
+    left: 90%;
+    top: 45%;
+    animation: floatScroll 8s ease-in-out infinite;
+  }
+
+  .crystal {
+    position: absolute;
+    right: 90%;
+    bottom: 50%;
+    animation: crystalGlow 7s ease-in-out infinite;
+  }
+
+  @keyframes flyDragon {
+    0% {
+      transform: translateX(100%) rotate(0deg);
+    }
+    100% {
+      transform: translateX(-100%) rotate(10deg);
+    }
+  }
+
+  @keyframes swordFight {
+    0%,
+    100% {
+      transform: rotate(0deg) scale(1);
+    }
+    25% {
+      transform: rotate(-15deg) scale(1.1);
+    }
+    75% {
+      transform: rotate(15deg) scale(1.1);
+    }
+  }
+
+  @keyframes floatBeer {
+    0%,
+    100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-20px) rotate(10deg);
+    }
+  }
+
+  @keyframes castSpell {
+    0%,
+    100% {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.2) rotate(180deg);
+      opacity: 0.8;
+    }
+  }
+
+  @keyframes sparkle {
+    0%,
+    100% {
+      transform: scale(1) rotate(0deg);
+      filter: brightness(1);
+    }
+    50% {
+      transform: scale(1.1) rotate(180deg);
+      filter: brightness(1.5);
+    }
+  }
+
+  @keyframes floatGhost {
+    0%,
+    100% {
+      transform: translateY(0) scale(1);
+      opacity: 0.7;
+    }
+    50% {
+      transform: translateY(-30px) scale(1.1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes portalPulse {
+    0%,
+    100% {
+      transform: scale(1) rotate(0deg);
+      filter: brightness(1);
+    }
+    50% {
+      transform: scale(1.2) rotate(180deg);
+      filter: brightness(1.3);
+    }
+  }
+
+  @keyframes floatScroll {
+    0%,
+    100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-15px) rotate(5deg);
+    }
+  }
+
+  @keyframes crystalGlow {
+    0%,
+    100% {
+      transform: scale(1);
+      filter: brightness(1);
+    }
+    50% {
+      transform: scale(1.1);
+      filter: brightness(1.4);
+    }
+  }
+
+  /* Add a subtle overlay to ensure text readability */
+  .content-overlay {
+    @apply fixed inset-0 bg-black/20 pointer-events-none;
   }
 }
 
