@@ -103,18 +103,6 @@ async function main() {
       console.log(resp);
       break;
     }
-    case "storyteller": {
-      const resp = await promptStoryteller(prompt);
-      console.log(resp);
-      break;
-    }
-    case "recruiter": {
-      break;
-    }
-    case "invoker": {
-      break;
-    }
-
     default:
       throw new Error("Invalid Choice!");
   }
