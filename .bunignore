@@ -1,0 +1,5 @@
+# Ignore untracked files in contracts directory
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+contracts/.env 
