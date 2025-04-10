@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { ethers } from "ethers";
   import "./styles.css";
+  import Footer from "./components/Footer.svelte";
 
   // Contract ABIs
   const QUEST_ABI = [
@@ -973,21 +974,5 @@
     </div>
   {/if}
 
-  <!-- Bottom Navigation -->
-  <div class="bottom-nav">
-    <button
-      class="nav-button {!isConnected ? 'disabled' : ''}"
-      on:click={() => handleNavClick("log")}
-    >
-      <span class="text-2xl">📜</span>
-      <span>Quest Log</span>
-    </button>
-    <button
-      class="nav-button {!isConnected ? 'disabled' : ''}"
-      on:click={() => handleNavClick("tavern")}
-    >
-      <span class="text-2xl">🏰</span>
-      <span>Tavern</span>
-    </button>
-  </div>
+  <Footer {isConnected} {handleNavClick} />
 </div>
