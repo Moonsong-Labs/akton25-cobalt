@@ -5,6 +5,7 @@ import terminalImage from "terminal-image";
 import { promptDreamer } from "./dreamer";
 import { app, promptNecro } from "./necromancer";
 import { promptStoryteller } from "./storyteller";
+import { promptInvoker } from "./invoker";
 
 export type AGENTS =
 	| "necromancer"
@@ -91,6 +92,8 @@ async function main() {
 			break;
 		}
 		case "invoker": {
+			const resp = await promptInvoker(prompt);
+			console.log(resp);
 			break;
 		}
 
