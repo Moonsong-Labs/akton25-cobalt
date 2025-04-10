@@ -1,4 +1,36 @@
 {
+	"name": "akton25-cobalt",
+	"module": "index.ts",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"start": "bun run llm/index.ts",
+		"fmt": "biome check --write ."
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	},
+	"dependencies": {
+		"@google/genai": "^0.8.0",
+		"@inquirer/prompts": "^7.4.1",
+		"@langchain/anthropic": "^0.3.17",
+		"@langchain/community": "^0.3.40",
+		"@langchain/core": "^0.3.44",
+		"@langchain/google-genai": "^0.2.3",
+		"@langchain/langgraph": "^0.2.63",
+		"@langchain/langgraph-supervisor": "^0.0.11",
+		"@langchain/openai": "^0.5.5",
+		"cfonts": "^3.3.0",
+		"imgcat": "^2.3.0",
+		"langchain": "^0.3.21",
+		"terminal-image": "^3.1.1",
+		"zod": "^3.24.2"
+	}
+}
   "name": "akton25-cobalt",
   "module": "index.ts",
   "type": "module",
