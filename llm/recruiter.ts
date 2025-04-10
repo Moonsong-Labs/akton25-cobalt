@@ -4,7 +4,7 @@ import { DynamicStructuredTool, tool } from "@langchain/core/tools";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { z } from "zod";
 import { gpt4omini } from "./models";
-import { heroSchema, type Hero } from "./schemas";
+import { type Hero, heroSchema } from "./schemas";
 import { pickGenderTool } from "./tools";
 
 const systemMessage = new SystemMessage(
