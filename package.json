@@ -31,30 +31,3 @@
 		"zod": "^3.24.2"
 	}
 }
-  "name": "akton25-cobalt",
-  "module": "index.ts",
-  "type": "module",
-  "private": true,
-  "scripts": {
-    "start": "bun run llm/index.ts"
-  },
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5.8.3"
-  },
-  "dependencies": {
-    "@inquirer/prompts": "^7.4.1",
-    "@langchain/anthropic": "^0.3.17",
-    "@langchain/community": "^0.3.40",
-    "@langchain/core": "^0.3.44",
-    "@langchain/langgraph": "^0.2.63",
-    "@langchain/openai": "^0.5.5",
-    "cfonts": "^3.3.0",
-    "dotenv": "^16.4.7",
-    "langchain": "^0.3.21",
-    "pinata": "^2.2.0",
-    "zod": "^3.24.2"
-  }
-}
