@@ -26,7 +26,7 @@ const GAME_LOGIC = `
   - Ensure the dreamer returns the image name when it makes you an image.
   - Upload character image to ipfs using uploadImageTool.
   - Use the uploadHeroTool to persist a character to ipfs.
-  - Display the image using the displayImageTool.
+  - Display the image using the displayImageTool using the local image path.
   `;
 
 const necromancerAgent = createSupervisor({

@@ -5,7 +5,7 @@ import { z } from "zod";
 export const displayImageTool = tool(
 	async (args): Promise<string> => {
 		console.log("Displaying image...");
-		const filePath = `generated/${args.imageName}.png`;
+		const filePath = args.imagePath
 		const file = Bun.file(filePath);
 		if (!(await file.exists())) {
 			return `Error: Image file not found at ${filePath}`;
@@ -16,13 +16,13 @@ export const displayImageTool = tool(
 			width: "50%",
 		});
 		console.log(imageInTerminal);
-		return `image file path: generated/${args.imageName}.png`;
+		return `image file path: ${args.imagePath}`;
 	},
 	{
 		name: "displayImage",
 		description: "Display an image",
 		schema: z.object({
-			imageName: z.string().describe("The image name to display"),
+			imagePath: z.string().describe("The path of the image to display"),
 		}),
 	},
 );
