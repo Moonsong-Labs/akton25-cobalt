@@ -1,8 +1,5 @@
 import assert from "node:assert";
-import { GoogleGenAI } from "@google/genai";
-import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { tool } from "@langchain/core/tools";
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import terminalImage from "terminal-image";
 import { z } from "zod";
