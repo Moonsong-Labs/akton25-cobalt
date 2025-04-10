@@ -36,6 +36,7 @@ describe("IPFS Upload", () => {
 
 		// test by fetching the content from IPFS
 		const response = await fetch(`${gatewayUrl}${upload.cid}`);
-		expect(response.status).toBe(200);
+		const data = await response.arrayBuffer();
+		expect(data).toEqual(await imageFile.arrayBuffer());
 	});
 });

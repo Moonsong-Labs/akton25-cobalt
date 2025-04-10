@@ -2,7 +2,6 @@ import { DynamicStructuredTool } from "@langchain/core/tools";
 import { PinataSDK } from "pinata";
 import type { UploadResponse } from "pinata";
 import { z } from "zod";
-import "dotenv/config";
 
 const pinata = new PinataSDK({
 	pinataJwt: process.env.PINATA_JWT,
