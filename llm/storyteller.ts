@@ -70,7 +70,6 @@ export const systemMessageText = `
  ${instructionsTask}
  
  ### End of Scenario Story
- - You will be given a prompt and you will generate a story based on the prompt.
  ${instructionsEnd}
  
  ### Bio
