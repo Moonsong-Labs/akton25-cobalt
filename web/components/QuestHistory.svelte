@@ -1,93 +1,89 @@
 <script>
-  export let actionHistory = [];
+  import { quest } from "../stores/quest";
+  export let actionHistory;
   export let currentRound;
   export let showHistory;
 
-  function resetQuest() {
-    currentRound = 1;
-    actionHistory = [];
-    showHistory = false;
+  function handleReset() {
+    quest.resetQuest();
   }
 </script>
 
-<div class="history-section">
-  <h3 class="text-3xl font-medieval text-dnd-gold mb-6 text-center">
-    Your Quest Chronicle
-  </h3>
-  <div class="history-timeline">
-    {#each actionHistory as entry, i}
-      <div class="history-entry">
-        <div class="history-round">Round {entry.round}</div>
-        <div class="history-description">{entry.description}</div>
-        <div class="history-action">You chose to: {entry.action}</div>
+<div class="quest-history">
+  <h2 class="text-3xl font-medieval text-dnd-gold mb-8">Quest Summary</h2>
+
+  <div class="timeline">
+    {#each actionHistory as action, i}
+      <div class="timeline-item">
+        <div class="timeline-marker"></div>
+        <div class="timeline-content">
+          <h3 class="text-xl text-dnd-gold">Round {action.round}</h3>
+          <p class="text-lg mb-2">{action.description}</p>
+          <p class="text-dnd-copper">Action taken: {action.action}</p>
+        </div>
       </div>
     {/each}
   </div>
+
   <div class="text-center mt-8">
-    <button class="quest-button" on:click={resetQuest}>
+    <button class="quest-button" on:click={handleReset}>
       <span>Begin New Quest</span>
-      <span class="text-2xl">🏰</span>
+      <span class="text-2xl">🔄</span>
     </button>
   </div>
 </div>
 
 <style>
-  .history-section {
+  .quest-history {
     max-width: 800px;
     margin: 0 auto;
     padding: 2rem;
-    background: rgba(0, 0, 0, 0.7);
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
 
-  .history-timeline {
+  .timeline {
     position: relative;
-    padding-left: 2rem;
+    padding: 2rem 0;
   }
 
-  .history-timeline::before {
+  .timeline::before {
     content: "";
     position: absolute;
-    left: 0;
+    left: 50%;
     top: 0;
     bottom: 0;
     width: 2px;
-    background: linear-gradient(to bottom, #d4af37, #b87333);
+    background-color: #8b4513;
+    transform: translateX(-50%);
   }
 
-  .history-entry {
+  .timeline-item {
     position: relative;
     margin-bottom: 2rem;
-    padding: 1rem;
-    background: rgba(0, 0, 0, 0.5);
-    border-radius: 4px;
+    display: flex;
+    align-items: center;
   }
 
-  .history-entry::before {
-    content: "";
-    position: absolute;
-    left: -2.5rem;
-    top: 1.5rem;
-    width: 1rem;
-    height: 1rem;
-    background: #d4af37;
+  .timeline-marker {
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
+    background-color: #d4af37;
+    border: 2px solid #8b4513;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
-  .history-round {
-    font-size: 1.25rem;
-    color: #d4af37;
-    margin-bottom: 0.5rem;
+  .timeline-content {
+    width: 45%;
+    padding: 1rem;
+    background-color: rgba(139, 69, 19, 0.1);
+    border-radius: 8px;
+    margin-left: 55%;
   }
 
-  .history-description {
-    color: #b87333;
-    margin-bottom: 0.5rem;
-  }
-
-  .history-action {
-    color: #fff;
-    font-style: italic;
+  .timeline-item:nth-child(even) .timeline-content {
+    margin-left: 0;
+    margin-right: 55%;
   }
 </style>
