@@ -13,7 +13,7 @@ assert(MISTRAL_API_KEY, "MISTRAL_API_KEY is not set");
 
 export const gpt4omini = new ChatOpenAI({
 	model: "gpt-4o-mini-2024-07-18",
-	temperature: 0.7,
+	temperature: 0,
 });
 
 export const llama31withTools = new ChatOpenAI({
