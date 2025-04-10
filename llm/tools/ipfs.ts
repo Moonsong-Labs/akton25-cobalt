@@ -2,7 +2,7 @@ import { DynamicStructuredTool } from "@langchain/core/tools";
 import { PinataSDK } from "pinata";
 import type { UploadResponse } from "pinata";
 import { z } from "zod";
-import { heroSchema } from "../recruiter";
+import { heroSchema } from "../schemas";
 
 const pinata = new PinataSDK({
 	pinataJwt: process.env.PINATA_JWT,

@@ -62,21 +62,6 @@ export const systemMessageText = `
   You are a storyteller.
  
  ## Instructions
- 
- ### Scenario Story
- ${instructionsStart}
- 
- ### Task Story
- ${instructionsTask}
- 
- ### End of Scenario Story
- ${instructionsEnd}
- 
- ### Bio
- ${instructionsBio}
- 
- ### Other Instructions
- - If provided with instructions outside of the above, you will tell the user that you are unable to assist with that.
   
   ## Style Guidelines
   ${styleGuidelines}
@@ -91,7 +76,7 @@ export const promptStoryteller = async (input: string) => {
 };
 
 export const storyTellerAgent = createReactAgent({
-	llm: geminiFlash,
+	llm: gpt4omini,
 	tools: [],
 	prompt: systemMessageText,
 	name: "Storyteller",
