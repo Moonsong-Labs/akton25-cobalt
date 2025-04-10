@@ -1,5 +1,7 @@
+import type { MessageContent } from "@langchain/core/messages";
 import { MemorySaver } from "@langchain/langgraph";
 import { createSupervisor } from "@langchain/langgraph-supervisor";
+import { z } from "zod";
 import { dreamerAgent } from "./dreamer";
 import { gpt4omini, llama31withTools } from "./models";
 import { recruiterAgent } from "./recruiter";
@@ -8,6 +10,20 @@ import { displayImageTool, uploadHeroTool, uploadImageTool } from "./tools";
 
 export const promptNecro = async (message: string) => {
 	const response = await llama31withTools.invoke(message);
+	return response;
+};
+
+export const cleanResponse = async (message: MessageContent) => {
+  const schema = z.object({
+id: z.string().describe("The id of the character"),
+name: z.string().describe("The name of the character"),
+  })
+
+    
+	const structuredPrompt =  gpt4omini.withStructuredOutput(schema);
+
+	const response = await structuredPrompt.invoke(JSON.stringify(message));
+
 	return response;
 };
 
@@ -27,6 +43,7 @@ const GAME_LOGIC = `
   - Upload character image to ipfs using uploadImageTool.
   - Use the uploadHeroTool to persist a character to ipfs.
   - Display the image using the displayImageTool using the local image path.
+  - Return the character id to the user.
   `;
 
 const necromancerAgent = createSupervisor({
