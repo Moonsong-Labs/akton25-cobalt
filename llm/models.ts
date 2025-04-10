@@ -1,8 +1,8 @@
 import assert from "node:assert";
 import { GoogleGenAI } from "@google/genai";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-import { ChatOpenAI } from "@langchain/openai";
 import { ChatMistralAI } from "@langchain/mistralai";
+import { ChatOpenAI } from "@langchain/openai";
 
 const KLUSTER_API_KEY = process.env.KLUSTER_API_KEY;
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
