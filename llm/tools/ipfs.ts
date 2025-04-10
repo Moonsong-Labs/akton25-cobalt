@@ -26,6 +26,15 @@ export async function upload_json_to_ipfs(
 	}
 }
 
+export const uploadHeroTool = new DynamicStructuredTool({
+	name: "uploadHero",
+	description: "Upload a Hero to IPFS using Pinata",
+	schema: heroSchema,
+	func: async ({ name, content }) => {
+		return upload_json_to_ipfs(id, content);
+	},
+});
+
 export async function upload_image_to_ipfs(
 	imagePath: string,
 ): Promise<UploadResponse> {
@@ -45,23 +54,6 @@ export async function upload_image_to_ipfs(
 		throw error;
 	}
 }
-export const heroMetadata = z.object({
-	id: z.string().uuid().describe("The unique identifier of the hero"),
-	content: z.object({
-		name: z.string().describe("The name of the hero"),
-		description: z.string().describe("The description of the hero"),
-		image: z.string().describe("The ipfs url of the hero"),
-	}),
-});
-
-export const uploadHeroTool = new DynamicStructuredTool({
-	name: "uploadHero",
-	description: "Upload a Hero to IPFS using Pinata",
-	schema: heroMetadata,
-	func: async ({ id, content }) => {
-		return upload_json_to_ipfs(id, content);
-	},
-});
 
 export const uploadImageTool = new DynamicStructuredTool({
 	name: "uploadImage",
