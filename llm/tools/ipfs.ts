@@ -31,7 +31,7 @@ export const uploadHeroTool = new DynamicStructuredTool({
 	description: "Upload a Hero to IPFS using Pinata",
 	schema: heroSchema,
 	func: async ({ name, content }) => {
-		return upload_json_to_ipfs(id, content);
+		return upload_json_to_ipfs(name, content);
 	},
 });
 

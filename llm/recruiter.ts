@@ -108,7 +108,7 @@ export function rollRandomHeroStats(): Omit<Hero, "level" | "name"> {
 		}
 	}
 
-	return stats;
+	return { content: stats };
 }
 
 export const generateHeroTool = new DynamicStructuredTool({
