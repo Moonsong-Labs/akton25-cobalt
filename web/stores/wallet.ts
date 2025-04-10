@@ -20,12 +20,12 @@ interface WalletState {
 }
 
 // Contract addresses from environment variables
-const QUEST_ADDRESS = import.meta.env["QUEST_ADDRESS"] || "";
-const TAVERN_ADDRESS = import.meta.env["TAVERN_ADDRESS"] || "";
+const QUEST_ADDRESS = import.meta.env["VITE_QUEST_ADDRESS"] || "";
+const TAVERN_ADDRESS = import.meta.env["VITE_TAVERN_ADDRESS"] || "";
 
 if (!QUEST_ADDRESS || !TAVERN_ADDRESS) {
   throw new Error(
-    "Missing required environment variables: QUEST_ADDRESS and/or TAVERN_ADDRESS"
+    "Missing required environment variables: VITE_QUEST_ADDRESS and/or VITE_TAVERN_ADDRESS"
   );
 }
 
