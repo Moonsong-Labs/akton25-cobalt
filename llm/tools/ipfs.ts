@@ -12,7 +12,7 @@ const pinata = new PinataSDK({
 export async function upload_to_ipfs(name: string, content: object): Promise<UploadResponse> {
   try {
     const file = new File([JSON.stringify(content)], name, {
-      type: "text/json",
+      type: "application/json",
     });
     const upload = await pinata.upload.public.file(file);
     console.log(upload);
