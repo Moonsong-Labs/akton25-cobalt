@@ -27,13 +27,17 @@ export async function upload_json_to_ipfs(
 }
 
 export async function upload_image_to_ipfs(
-	imageFilePath: string,
+	imagePath: string,
 ): Promise<UploadResponse> {
 	try {
-		const file = Bun.file(imageFilePath);
-		const imageFile = await file.arrayBuffer();
-		const base64String = Buffer.from(imageFile).toString("base64");
-		const upload = await pinata.upload.public.base64(base64String);
+		// read image from assets
+		const bunFile = Bun.file(imagePath);
+		const arrayBuffer = await bunFile.arrayBuffer();
+		const imageFile = new File([arrayBuffer], "hero.png", {
+			type: "image/png",
+		});
+
+		const upload = await pinata.upload.public.file(imageFile);
 		console.log(upload);
 		return upload;
 	} catch (error) {

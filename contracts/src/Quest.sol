@@ -6,6 +6,9 @@ import { Tavern } from "./Tavern.sol";
 import { EnumerableSet } from "@openzeppelin-contracts/utils/structs/EnumerableSet.sol";
 
 contract Quest is Ownable {
+    uint8 public constant MAX_HEROES = 3;
+    uint8 public constant MAX_TASKS = 3;
+
     using EnumerableSet for EnumerableSet.UintSet;
 
     enum QuestStatus {
@@ -27,10 +30,16 @@ contract Quest is Ownable {
         SNEAK
     }
 
+    struct Round {
+        uint256 heroId;
+        Outcome outcome;
+    }
+
     struct QuestDetails {
         string metadataUrl;
         QuestStatus status;
         EnumerableSet.UintSet heroes;
+        Round[] progress;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -42,8 +51,6 @@ contract Quest is Ownable {
     event HeroEnrolled(uint256 indexed questId, uint256 indexed heroId);
 
     event TaskPerformed(uint256 indexed questId, uint256 indexed heroId, Task task);
-
-    event TaskResolved(uint256 indexed questId, uint256 indexed heroId, Task task, Outcome outcome);
 
     /*//////////////////////////////////////////////////////////////////////////
                                      STORAGE
@@ -57,13 +64,18 @@ contract Quest is Ownable {
                                 PUBLIC FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier when(uint256 questId, QuestStatus status) {
-        require(_quests[questId].status == status, "Quest not in correct state");
+    modifier when(uint256 questId, QuestStatus requiredStatus) {
+        require(_quests[questId].status == requiredStatus, "Quest not in correct state");
         _;
     }
 
     modifier onlyHeroMaster(uint256 heroId) {
         require(_tavern.ownerOf(heroId) == msg.sender, "Not your hero!");
+        _;
+    }
+
+    modifier onlyEnrolledHero(uint256 questId, uint256 heroId) {
+        require(_quests[questId].heroes.contains(heroId), "Hero not in quest");
         _;
     }
 
@@ -74,8 +86,9 @@ contract Quest is Ownable {
     function createNewQuest(string calldata metadataUrl) external onlyOwner returns (uint256) {
         uint256 questId = _nextQuestId++;
 
-        _quests[questId].metadataUrl = metadataUrl;
-        _quests[questId].status = QuestStatus.OPEN;
+        QuestDetails storage quest = _quests[questId];
+        quest.metadataUrl = metadataUrl;
+        quest.status = QuestStatus.OPEN;
 
         emit QuestStatusUpdated(questId, QuestStatus.OPEN);
 
@@ -90,12 +103,14 @@ contract Quest is Ownable {
         onlyHeroMaster(heroId)
         when(questId, QuestStatus.OPEN)
     {
+        require(!isFull(questId), "Quest full");
         require(_quests[questId].heroes.add(heroId), "Hero already in quest");
 
         emit HeroEnrolled(questId, heroId);
     }
 
-    function startQuest(uint256 questId) external onlyOwner when(questId, QuestStatus.OPEN) {
+    function startQuest(uint256 questId) external when(questId, QuestStatus.OPEN) {
+        require(isFull(questId), "Quest not full");
         _quests[questId].status = QuestStatus.IN_PROGRESS;
         emit QuestStatusUpdated(questId, QuestStatus.IN_PROGRESS);
     }
@@ -107,35 +122,31 @@ contract Quest is Ownable {
     )
         external
         onlyHeroMaster(heroId)
+        onlyEnrolledHero(questId, heroId)
         when(questId, QuestStatus.IN_PROGRESS)
     {
-        require(_quests[questId].heroes.contains(heroId), "Hero not in quest");
-
         emit TaskPerformed(questId, heroId, task);
     }
 
     function resolveTask(
         uint256 questId,
-        Outcome taskOutcome
+        uint256 heroId,
+        Outcome taskOutcome,
+        string calldata metadataUrl
     )
         external
         onlyOwner
+        onlyEnrolledHero(questId, heroId)
         when(questId, QuestStatus.IN_PROGRESS)
     {
-        // todo: implement
-    }
 
-    function finishQuest(uint256 questId) external onlyOwner when(questId, QuestStatus.IN_PROGRESS) {
         QuestDetails storage quest = _quests[questId];
-        quest.status = QuestStatus.FINISHED;
+        quest.progress.push(Round({ heroId: heroId, outcome: taskOutcome }));
+        quest.metadataUrl = metadataUrl;
 
-        for (uint256 i = 0; i < quest.heroes.length(); i++) {
-            uint256 heroId = quest.heroes.at(i);
-            _tavern.levelUp(heroId);
-            // Logic to finish the quest for each hero
+        if (_quests[questId].progress.length == MAX_TASKS) {
+            _finishQuest(questId);
         }
-
-        emit QuestStatusUpdated(questId, QuestStatus.FINISHED);
     }
 
     function questHeroes(uint256 questId) external view returns (uint256[] memory) {
@@ -146,7 +157,33 @@ contract Quest is Ownable {
         return _quests[questId].metadataUrl;
     }
 
+    function status(uint256 questId) external view returns (QuestStatus) {
+        return _quests[questId].status;
+    }
+
+    function progress(uint256 questId) external view returns (Round[] memory) {
+        return _quests[questId].progress;
+    }
+
+    function isFull(uint256 questId) public view returns (bool) {
+        return _quests[questId].heroes.length() == MAX_HEROES;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    function _finishQuest(uint256 questId) private {
+        QuestDetails storage quest = _quests[questId];
+        require(quest.progress.length == MAX_TASKS, "Not all tasks resolved");
+
+        quest.status = QuestStatus.FINISHED;
+
+        for (uint256 i = 0; i < quest.heroes.length(); i++) {
+            uint256 heroId = quest.heroes.at(i);
+            _tavern.levelUp(heroId);
+        }
+
+        emit QuestStatusUpdated(questId, QuestStatus.FINISHED);
+    }
 }
