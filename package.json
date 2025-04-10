@@ -5,6 +5,7 @@
 	"private": true,
 	"scripts": {
 		"start": "bun run llm/index.ts",
+		"start:backend": "bun run backend/server.ts",
 		"fmt": "biome check --write ."
 	},
 	"devDependencies": {
