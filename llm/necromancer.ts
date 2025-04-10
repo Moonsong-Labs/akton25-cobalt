@@ -40,7 +40,7 @@ const GAME_LOGIC = `
   - Upload character image to ipfs using uploadImageTool.
   - Use the uploadHeroTool to persist a character to ipfs.
   - Display the image using the displayImageTool using the local image path.
-  - **IMPORTANT** Mint character on chain by using the recruitHeroTool. Pass in the wallet address of the original user query to this tool.
+  - **IMPORTANT** Mint character on chain by using the recruitHeroTool. Pass in the wallet address of the original user query to this tool. The cid should be a complete ifps url as the metadata uri parameter.
   - Return the character id to the user.
   
   ### Starting a Quest

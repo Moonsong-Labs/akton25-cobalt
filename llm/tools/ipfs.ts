@@ -3,6 +3,13 @@ import { PinataSDK } from "pinata";
 import type { UploadResponse } from "pinata";
 import { z } from "zod";
 import { heroSchema } from "../schemas";
+import dotenv from "dotenv";
+import  assert  from "node:assert";
+import type { AnyLink } from "@web3-storage/w3up-client/types";
+import { create } from "@web3-storage/w3up-client";
+
+
+dotenv.config();
 
 const pinata = new PinataSDK({
 	pinataJwt: process.env.PINATA_JWT,
@@ -26,6 +33,33 @@ export async function upload_json_to_ipfs(
 	}
 }
 
+export async function uploadJsonToStorach(
+	name: string,
+	content: object,
+): Promise<AnyLink> {
+	try {
+		const file = new File([JSON.stringify(content)], name, {
+			type: "application/json",
+		});
+
+		const loginName = process.env.STORACH_LOGIN_NAME
+		const loginPassword = process.env.STORACH_LOGIN_PASSWORD
+
+		const client = await create()
+		assert(loginName)
+		assert(loginPassword)
+		await client.login(loginName as any)
+		await client.setCurrentSpace(loginPassword as any) 
+		const upload = await client.uploadFile(file)
+		console.log(upload);
+		return upload;
+	} catch (error) {
+		console.error("Error uploading to IPFS:", error);
+		throw error;
+	}
+}
+
+
 export const uploadHeroTool = new DynamicStructuredTool({
 	name: "uploadHero",
 	description: "Upload a Hero to IPFS using Pinata",
@@ -34,6 +68,34 @@ export const uploadHeroTool = new DynamicStructuredTool({
 		return upload_json_to_ipfs(name, content);
 	},
 });
+
+export async function uploadImageToStoracha(
+	imagePath: string,
+): Promise<AnyLink> {
+	try {
+		// read image from assets
+		const bunFile = Bun.file(imagePath);
+		const arrayBuffer = await bunFile.arrayBuffer();
+		const imageFile = new File([arrayBuffer], "hero.png", {
+			type: "image/png",
+		});
+
+		const loginName = process.env.STORACH_LOGIN_NAME
+		const loginPassword = process.env.STORACH_LOGIN_PASSWORD
+
+		const client = await create()
+		assert(loginName)
+		assert(loginPassword)
+		await client.login(loginName as any)
+		await client.setCurrentSpace(loginPassword as any) 
+		const upload = await client.uploadFile(imageFile)
+		console.log(upload);
+		return upload;
+	} catch (error) {
+		console.error("Error uploading image to IPFS:", error);
+		throw error;
+	}
+}
 
 export async function upload_image_to_ipfs(
 	imagePath: string,
