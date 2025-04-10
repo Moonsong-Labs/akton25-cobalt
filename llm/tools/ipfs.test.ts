@@ -6,9 +6,8 @@ describe("IPFS Upload", () => {
         const name = "test.txt";
         const content = "Hello, World!";
 
-        await upload_to_ipfs(name, content);
+        const upload = await upload_to_ipfs(name, content);
 
-        // Since the function logs the result, we just verify it didn't throw
-        expect(true).toBe(true);
+        expect(upload.id).toBeDefined();
     });
 }); 
