@@ -2,6 +2,7 @@ import { DynamicStructuredTool } from "@langchain/core/tools";
 import { PinataSDK } from "pinata";
 import type { UploadResponse } from "pinata";
 import { z } from "zod";
+import { heroSchema } from "../recruiter";
 
 const pinata = new PinataSDK({
 	pinataJwt: process.env.PINATA_JWT,
@@ -44,31 +45,21 @@ export async function upload_image_to_ipfs(
 		throw error;
 	}
 }
+export const heroMetadata = z.object({
+	id: z.string().uuid().describe("The unique identifier of the hero"),
+	content: z.object({
+		name: z.string().describe("The name of the hero"),
+		description: z.string().describe("The description of the hero"),
+		image: z.string().describe("The ipfs url of the hero"),
+	}),
+});
 
 export const uploadHeroTool = new DynamicStructuredTool({
 	name: "uploadHero",
 	description: "Upload a Hero to IPFS using Pinata",
-	schema: z.object({
-		name: z.string().describe("The name of the file to upload"),
-		content: z
-			.object({
-				name: z.string().describe("The name of the hero"),
-				description: z.string().describe("The description of the hero"),
-				image: z.string().describe("The image of the hero"),
-				attributes: z
-					.array(
-						z.object({
-							attack: z.string().describe("The attack of the hero"),
-							value: z.string().describe("The attack value of the hero"),
-						}),
-					)
-					.describe("The attributes of the hero"),
-			})
-			.describe("The content to upload to IPFS"),
-	}),
-	func: async ({ name, content }) => {
-		const upload = await upload_json_to_ipfs(name, content);
-		return `JSON uploaded successfully: ${upload.cid}`;
+	schema: heroMetadata,
+	func: async ({ id, content }) => {
+		return upload_json_to_ipfs(id, content);
 	},
 });
 
@@ -76,10 +67,9 @@ export const uploadImageTool = new DynamicStructuredTool({
 	name: "uploadImage",
 	description: "Upload an image to IPFS using Pinata",
 	schema: z.object({
-		imagePath: z.string().describe("The path to the image file to upload"),
+		imageFilePath: z.string().describe("The file path of the image to upload"),
 	}),
-	func: async ({ imagePath }) => {
-		const upload = await upload_image_to_ipfs(imagePath);
-		return `Image uploaded successfully: ${upload.cid}`;
+	func: async ({ imageFilePath }) => {
+		return upload_image_to_ipfs(imageFilePath);
 	},
 });
