@@ -1,6 +1,4 @@
 import { writable } from "svelte/store";
-import type { Writable } from "svelte/store";
-import { wallet } from "./wallet";
 
 interface Action {
   id: string;
@@ -115,12 +113,12 @@ function createQuestStore() {
         await new Promise((resolve) => setTimeout(resolve, 2000));
 
         update((state) => {
-          const newHistory = [
+          const newHistory: ActionHistory[] = [
             ...state.actionHistory,
             {
               round: state.currentRound,
               action: action.label,
-              description: state.roundDescriptions[state.currentRound],
+              description: state.roundDescriptions[state.currentRound] || "",
             },
           ];
 

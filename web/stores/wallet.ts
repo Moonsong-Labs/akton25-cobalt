@@ -1,5 +1,4 @@
 import { writable, get } from "svelte/store";
-import type { Writable } from "svelte/store";
 import { ethers, BrowserProvider, Contract } from "ethers";
 import Quest from "../../contracts/out/Quest.sol/Quest.json";
 import Tavern from "../../contracts/out/Tavern.sol/Tavern.json";
@@ -21,11 +20,13 @@ interface WalletState {
 }
 
 // Contract addresses from environment variables
-const QUEST_ADDRESS = import.meta.env["VITE_QUEST_ADDRESS"];
-const TAVERN_ADDRESS = import.meta.env["VITE_TAVERN_ADDRESS"];
+const QUEST_ADDRESS = import.meta.env["QUEST_ADDRESS"] || "";
+const TAVERN_ADDRESS = import.meta.env["TAVERN_ADDRESS"] || "";
 
 if (!QUEST_ADDRESS || !TAVERN_ADDRESS) {
-  throw new Error("Missing required environment variables: VITE_QUEST_ADDRESS and/or VITE_TAVERN_ADDRESS");
+  throw new Error(
+    "Missing required environment variables: QUEST_ADDRESS and/or TAVERN_ADDRESS"
+  );
 }
 
 function createWalletStore() {
@@ -64,8 +65,8 @@ function createWalletStore() {
           console.log("account", account);
 
           // Check hero balance
-          const heroCount = await tavernContract["balanceOf"](account);
-          console.log("Hero count:", heroCount.toString());
+          const heroCount = await tavernContract?.["balanceOf"]?.(account);
+          console.log("Hero count:", heroCount?.toString());
 
           // Load user's heroes
           const userHeroes = await loadUserHeroes(tavernContract);
@@ -105,7 +106,9 @@ function createWalletStore() {
       try {
         const state = get(wallet);
         if (state.tavernContract && state.account) {
-          const balance = await state.tavernContract["balanceOf"](state.account);
+          const balance = await state.tavernContract?.["balanceOf"]?.(
+            state.account
+          );
           update((state) => ({
             ...state,
             heroCount: Number(balance),
