@@ -3,6 +3,8 @@
   import { ethers } from "ethers";
   import "./styles.css";
   import Footer from "./components/Footer.svelte";
+  import QuestLog from "./components/QuestLog.svelte";
+  import Tavern from "./components/Tavern.svelte";
 
   // Contract ABIs
   const QUEST_ABI = [
@@ -925,54 +927,7 @@
     </div>
   {/if}
 
-  <!-- Quest Log Popup -->
-  {#if isConnected && showQuestLog}
-    <div class="quest-log-popup">
-      <div class="quest-log-header">
-        <h3 class="text-xl font-medieval text-dnd-gold">Quest Log</h3>
-        <button
-          class="toggle-log"
-          on:click={() => (showQuestLog = !showQuestLog)}>×</button
-        >
-      </div>
-      <div class="quest-log-messages">
-        {#each eventLog as event}
-          <div class="quest-log-message">
-            <span class="message-time"
-              >{event.timestamp.toLocaleTimeString()}</span
-            >
-            <span class="message-text">{event.message}</span>
-          </div>
-        {/each}
-      </div>
-    </div>
-  {/if}
-
-  <!-- Tavern Popup -->
-  {#if isConnected && showTavern}
-    <div class="tavern-popup">
-      <div class="tavern-header">
-        <h3 class="text-xl font-medieval text-dnd-gold">The Tavern</h3>
-        <button
-          class="toggle-tavern"
-          on:click={() => (showTavern = !showTavern)}>×</button
-        >
-      </div>
-      <div class="tavern-content">
-        <div class="heroes-list">
-          <h4 class="text-xl text-dnd-copper mb-4">Your Heroes</h4>
-          <div class="hero-card">
-            <span class="hero-name">Sir Lancelot</span>
-            <span class="hero-level">Level 5</span>
-          </div>
-          <div class="hero-card">
-            <span class="hero-name">Lady Morgana</span>
-            <span class="hero-level">Level 3</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  {/if}
-
+  <QuestLog {showQuestLog} {eventLog} on:close={() => (showQuestLog = false)} />
+  <Tavern {showTavern} {userHeroes} on:close={() => (showTavern = false)} />
   <Footer {isConnected} {handleNavClick} />
 </div>
