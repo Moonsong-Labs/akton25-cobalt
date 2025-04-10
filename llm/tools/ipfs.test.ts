@@ -10,4 +10,4 @@ describe("IPFS Upload", () => {
 
         expect(upload.id).toBeDefined();
     });
-}); 
+});
