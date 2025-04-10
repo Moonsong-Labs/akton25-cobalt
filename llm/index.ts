@@ -81,6 +81,7 @@ async function main() {
       const resp = await promptDreamer(prompt);
       const imageBase64 = resp.generatedImages?.[0]?.image?.imageBytes;
       assert(imageBase64, "No image generated!");
+
       const imageData = Buffer.from(imageBase64, "base64");
 
       await Bun.write("./dream.png", imageData);
