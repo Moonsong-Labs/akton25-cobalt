@@ -2,6 +2,7 @@ import { DynamicStructuredTool } from "@langchain/core/tools";
 import { PinataSDK } from "pinata";
 import type { UploadResponse } from "pinata";
 import { z } from "zod";
+import { heroSchema } from "../recruiter";
 
 const pinata = new PinataSDK({
 	pinataJwt: process.env.PINATA_JWT,
@@ -26,10 +27,13 @@ export async function upload_json_to_ipfs(
 }
 
 export async function upload_image_to_ipfs(
-	imageFile: File,
+	imageFilePath: string,
 ): Promise<UploadResponse> {
 	try {
-		const upload = await pinata.upload.public.file(imageFile);
+		const file = Bun.file(imageFilePath);
+		const imageFile = await file.arrayBuffer();
+		const base64String = Buffer.from(imageFile).toString("base64");
+		const upload = await pinata.upload.public.base64(base64String);
 		console.log(upload);
 		return upload;
 	} catch (error) {
@@ -37,30 +41,21 @@ export async function upload_image_to_ipfs(
 		throw error;
 	}
 }
+export const heroMetadata = z.object({
+	id: z.string().uuid().describe("The unique identifier of the hero"),
+	content: z.object({
+		name: z.string().describe("The name of the hero"),
+		description: z.string().describe("The description of the hero"),
+		image: z.string().describe("The ipfs url of the hero"),
+	}),
+});
 
 export const uploadHeroTool = new DynamicStructuredTool({
 	name: "uploadHero",
 	description: "Upload a Hero to IPFS using Pinata",
-	schema: z.object({
-		name: z.string().describe("The name of the file to upload"),
-		content: z
-			.object({
-				name: z.string().describe("The name of the hero"),
-				description: z.string().describe("The description of the hero"),
-				image: z.string().describe("The image of the hero"),
-				attributes: z
-					.array(
-						z.object({
-							attack: z.string().describe("The attack of the hero"),
-							value: z.string().describe("The attack value of the hero"),
-						}),
-					)
-					.describe("The attributes of the hero"),
-			})
-			.describe("The content to upload to IPFS"),
-	}),
-	func: async ({ name, content }) => {
-		return upload_json_to_ipfs(name, content);
+	schema: heroMetadata,
+	func: async ({ id, content }) => {
+		return upload_json_to_ipfs(id, content);
 	},
 });
 
@@ -68,9 +63,9 @@ export const uploadImageTool = new DynamicStructuredTool({
 	name: "uploadImage",
 	description: "Upload an image to IPFS using Pinata",
 	schema: z.object({
-		imageFile: z.instanceof(File).describe("The image file to upload"),
+		imageFilePath: z.string().describe("The file path of the image to upload"),
 	}),
-	func: async ({ imageFile }) => {
-		return upload_image_to_ipfs(imageFile);
+	func: async ({ imageFilePath }) => {
+		return upload_image_to_ipfs(imageFilePath);
 	},
 });
