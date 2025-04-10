@@ -8,6 +8,7 @@
   import QuestSection from "./components/QuestSection.svelte";
   import { wallet } from "./stores/wallet.ts";
   import { quest } from "./stores/quest.ts";
+  import MintHero from "./components/MintHero.svelte";
 
   let showQuestLog = false;
   let showTavern = false;
@@ -68,6 +69,7 @@
               -4
             )}</span
           >
+          <MintHero />
         </div>
       {/if}
     </div>

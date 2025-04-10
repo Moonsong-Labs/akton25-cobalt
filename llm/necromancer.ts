@@ -39,7 +39,6 @@ const GAME_LOGIC = `
   - Upload character image to ipfs using uploadImageTool.
   - Use the uploadHeroTool to persist a character to ipfs.
   - Display the image using the displayImageTool using the local image path.
-  - Return the character id to the user.
   `;
 
 const necromancerAgent = createSupervisor({

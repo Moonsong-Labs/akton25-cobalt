@@ -8,9 +8,8 @@
 		"fmt": "biome check --write .",
 		"dev": "vite",
 		"build": "vite build",
-		"preview": "vite preview"
-		"start:backend": "bun run backend/server.ts",
-		"fmt": "biome check --write ."
+		"preview": "vite preview",
+		"start:backend": "bun run backend/server.ts"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
