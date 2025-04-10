@@ -1,10 +1,9 @@
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { tool } from "@langchain/core/tools";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { z } from "zod";
 import { gpt4omini } from "./models";
-import { createReactAgent } from "@langchain/langgraph/prebuilt";
-
 
 const styleGuidelines = `
   - Use descriptive language to create vivid imagery.
@@ -23,7 +22,7 @@ export const systemMessageText = `
  You will be given a prompt and you will generate a story based on the prompt.
   
   ## Style Guidelines
-  ${styleGuidelines}`
+  ${styleGuidelines}`;
 
 const systemMessage = new SystemMessage(systemMessageText);
 
@@ -33,10 +32,9 @@ export const promptStoryteller = async (input: string) => {
 	return content;
 };
 
-
 export const storyTellerAgent = createReactAgent({
-  llm: gpt4omini,
-  tools: [],
-  prompt: systemMessageText,
-  name: "Storyteller",
+	llm: gpt4omini,
+	tools: [],
+	prompt: systemMessageText,
+	name: "Storyteller",
 });
