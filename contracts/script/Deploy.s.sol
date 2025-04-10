@@ -32,11 +32,6 @@ contract DeployScript is Script {
         tavern.setQuest(address(quest));
         console2.log("Quest address set in Tavern");
 
-        // Verify contracts are properly linked
-        console2.log("Contract linking verification:");
-        address questAddress = address(quest);
-        console2.log("Quest is authorized in Tavern:", questAddress);
-
         vm.stopBroadcast();
 
         console2.log("Deployment completed successfully");
