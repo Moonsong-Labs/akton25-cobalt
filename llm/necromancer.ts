@@ -1,18 +1,21 @@
-import { TavilySearchResults } from "@langchain/community/tools/tavily_search";
-import { type AIMessage, HumanMessage } from "@langchain/core/messages";
-import { MessagesAnnotation, StateGraph } from "@langchain/langgraph";
-import { ToolNode } from "@langchain/langgraph/prebuilt";
-import { ChatOpenAI } from "@langchain/openai";
+import { createSupervisor } from "@langchain/langgraph-supervisor";
+import { gpt4omini, llama31withTools } from "./models";
+import { storyTellerAgent } from "./storyteller";
+import { dreamerAgent } from "./dreamer";
 
-// https://langchain-ai.github.io/langgraphjs/tutorials/quickstart/#customizing-agent-behavior
-const tools = [new TavilySearchResults({ maxResults: 3 })];
-const toolNode = new ToolNode(tools);
+export const promptNecro = async (message: string) => {
+  const response = await llama31withTools.invoke(message);
+  return response;
+};
 
-const model = new ChatOpenAI({
-	model: "gpt-4o-mini",
-	temperature: 0,
+ const necromancerAgent = createSupervisor({
+  agents: [storyTellerAgent, dreamerAgent],
+  llm: gpt4omini,
+  tools: [],
+  prompt:
+    "You are a team supervisor managing a narrative expert, an artist. " +
+    "For queries that require narrative text, use the storyteller. " +
+    "For any tasks that require art assets created, use the dreamer.",
 });
-// .bindTools(tools)
 
-// const {content}=await model.invoke("hello!")
-// console.log(content)
+export const app = necromancerAgent.compile()
