@@ -4,7 +4,10 @@ import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import terminalImage from "terminal-image";
 import { z } from "zod";
 import { googleAi, gpt4omini } from "./models";
-import { uploadImageTool } from "./tools/ipfs";
+import { MemorySaver } from "@langchain/langgraph";
+
+
+
 
 const promptTemplate = (userPrompt: string) => `
   Generate a single high-quality art asset based precisely on the object or scene described below. The style should be consistently applied as specified in the THEME section.
@@ -19,7 +22,6 @@ const promptTemplate = (userPrompt: string) => `
   Level of Detail: [optional—minimalistic, moderate, highly detailed]
   Background Preference: [optional—plain transparent background, gradient, detailed scene, etc.]
   Aspect Ratio or Dimensions: [optional—1:1 square, 16:9 widescreen, 1080x1080px, etc.]
-
   `;
 
 export const promptDreamer = async (prompt: string) => {
@@ -57,18 +59,22 @@ const generateImageAndSaveTool = tool(
 		const response = await promptDreamer(args.prompt);
 		const imageBase64 = response.generatedImages?.[0]?.image?.imageBytes;
 		assert(imageBase64, "No image data received");
-		console.log("Image generated successfully");
+
 		console.log("Saving image...");
 		const imageData = Buffer.from(imageBase64, "base64");
 		const filePath = `generated/${args.imageName}.png`;
 		await Bun.write(filePath, imageData);
-		return `Image saved successfully to ${filePath}`;
+		return `image file path: ${filePath}`;
 	},
 	{
 		name: "generateImageAndSave",
 		description: "Generate an image based on a prompt",
 		schema: z.object({
-			imageName: z.string().describe("Pascal case image name to save as"),
+			imageName: z
+				.string()
+				.describe(
+					"Name of the image file, single word, typically the name of the asset.",
+				),
 			prompt: z
 				.string()
 				.describe("A generative AI prompt for generating an art asset."),
@@ -90,59 +96,22 @@ const promptTemplateTool = tool(
 	},
 );
 
-const saveImageTool = tool(
-	async (args) => {
-		console.log("Saving image...");
-		const imageData = Buffer.from(args.imageBase64, "base64");
-		await Bun.write("generated/dream.png", imageData);
-	},
-	{
-		name: "saveImage",
-		description: "Save an image to your device",
-		schema: z.object({
-			imageBase64: z.string().describe("The image data to save"),
-			imageName: z.string().describe("The name of the image to save"),
-		}),
-	},
-);
-
-const displayImageTool = tool(
-	async (args): Promise<string> => {
-		console.log("Displaying image...");
-		const filePath = `generated/${args.imageName}.png`;
-		const file = Bun.file(filePath);
-		if (!(await file.exists())) {
-			return `Error: Image file not found at ${filePath}`;
-		}
-		const arrayBuffer = await file.arrayBuffer();
-		const imageData = new Uint8Array(arrayBuffer);
-		const imageInTerminal = await terminalImage.buffer(imageData, {
-			width: "50%",
-		});
-		console.log(imageInTerminal);
-		return `Image ${args.imageName}.png displayed successfully.`;
-	},
-	{
-		name: "displayImage",
-		description: "Display an image",
-		schema: z.object({
-			imageName: z.string().describe("The image name to display"),
-		}),
-	},
-);
-
 export const dreamerAgent = createReactAgent({
+  checkpointSaver: new MemorySaver(),
 	llm: gpt4omini,
 	name: "Dreamer",
-	tools: [
-		generateImageAndSaveTool,
-		promptTemplateTool,
-		displayImageTool,
-		uploadImageTool,
-	],
-	prompt:
-		"You are an AI assistant that helps generate images based on user prompts. " +
-		"Use the promptTemplate tool to format user requests into detailed image generation prompts. " +
-		"Then use the generateImageAndSaveTool tool to create the image. " +
-		"After generating an image, use the displayImage tool to show it to the user.",
+	tools: [generateImageAndSaveTool, promptTemplateTool],
+	prompt: `
+	## Role
+	You are the Dreamer, an agent that imagines and creates new images based on requests and text only containing resulting filepaths.
+	
+	## Instructions
+	- When being asked to generate an image: first use the promptTemplate tool to format any inputs into detailed image generation prompts.
+	- When generating assets, choose a concise and simple name - usually based on the name of that character or asset.
+	- Always use the generateImageAndSaveTool tool to create the image.
+	- Whenever transferring to another agent, pass any image file path you have generated to the next agent.
+	
+	## Returns
+	**ALWAYS** return image file path names e.g. generated/image1.png
+	`,
 });
