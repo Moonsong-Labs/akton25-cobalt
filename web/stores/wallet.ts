@@ -1,5 +1,21 @@
 import { writable } from "svelte/store";
-import { ethers } from "ethers";
+import type { Writable } from "svelte/store";
+import { ethers, BrowserProvider, Contract } from "ethers";
+
+interface Hero {
+  id: number;
+  name: string;
+  level: number;
+}
+
+interface WalletState {
+  isConnected: boolean;
+  account: string;
+  provider: BrowserProvider | null;
+  questContract: Contract | null;
+  tavernContract: Contract | null;
+  userHeroes: Hero[];
+}
 
 // Contract ABIs
 export const QUEST_ABI = [
@@ -22,7 +38,7 @@ export const QUEST_ADDRESS = "0x...";
 export const TAVERN_ADDRESS = "0x...";
 
 function createWalletStore() {
-  const { subscribe, set, update } = writable({
+  const { subscribe, set, update } = writable<WalletState>({
     isConnected: false,
     account: "",
     provider: null,
@@ -33,7 +49,7 @@ function createWalletStore() {
 
   return {
     subscribe,
-    connect: async () => {
+    connect: async (): Promise<boolean> => {
       try {
         if (window.ethereum) {
           const provider = new ethers.BrowserProvider(window.ethereum);
@@ -74,7 +90,7 @@ function createWalletStore() {
         return false;
       }
     },
-    disconnect: () => {
+    disconnect: (): void => {
       set({
         isConnected: false,
         account: "",
@@ -87,7 +103,7 @@ function createWalletStore() {
   };
 }
 
-async function loadUserHeroes(tavernContract) {
+async function loadUserHeroes(tavernContract: Contract): Promise<Hero[]> {
   try {
     // This would need to be implemented based on your contract's token enumeration
     // For now, we'll simulate it

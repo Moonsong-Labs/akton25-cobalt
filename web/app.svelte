@@ -6,8 +6,8 @@
   import Tavern from "./components/Tavern.svelte";
   import Background from "./components/Background.svelte";
   import QuestSection from "./components/QuestSection.svelte";
-  import { wallet } from "./stores/wallet";
-  import { quest } from "./stores/quest";
+  import { wallet } from "./stores/wallet.ts";
+  import { quest } from "./stores/quest.ts";
 
   let showQuestLog = false;
   let showTavern = false;
@@ -64,7 +64,9 @@
       {:else}
         <div class="connected-wallet">
           <span class="wallet-address"
-            >Connected: {$wallet.account.slice(0, 6)}...{$wallet.account.slice(-4)}</span
+            >Connected: {$wallet.account.slice(0, 6)}...{$wallet.account.slice(
+              -4
+            )}</span
           >
         </div>
       {/if}
@@ -82,8 +84,16 @@
     </div>
   {/if}
 
-  <QuestLog {showQuestLog} eventLog={$quest.eventLog} on:close={() => (showQuestLog = false)} />
-  <Tavern {showTavern} userHeroes={$wallet.userHeroes} on:close={() => (showTavern = false)} />
+  <QuestLog
+    {showQuestLog}
+    eventLog={$quest.eventLog}
+    on:close={() => (showQuestLog = false)}
+  />
+  <Tavern
+    {showTavern}
+    userHeroes={$wallet.userHeroes}
+    on:close={() => (showTavern = false)}
+  />
   <Footer isConnected={$wallet.isConnected} {handleNavClick} />
 </div>
 

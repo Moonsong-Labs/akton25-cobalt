@@ -1,8 +1,41 @@
 import { writable } from "svelte/store";
+import type { Writable } from "svelte/store";
 import { wallet } from "./wallet";
 
+interface Action {
+  id: string;
+  label: string;
+  subtext: string;
+  function: string;
+  taskId: number;
+}
+
+interface ActionHistory {
+  round: number;
+  action: string;
+  description: string;
+}
+
+interface EventLogEntry {
+  message: string;
+  timestamp: Date;
+}
+
+interface QuestState {
+  status: "not_joined" | "pending" | "accepted" | "rejected";
+  currentRound: number;
+  maxRounds: number;
+  isLoading: boolean;
+  showHistory: boolean;
+  actionHistory: ActionHistory[];
+  activeQuests: Array<{ id: number; status: string; currentRound: number }>;
+  eventLog: EventLogEntry[];
+  roundDescriptions: Record<number, string>;
+  allActions: Action[];
+}
+
 function createQuestStore() {
-  const { subscribe, set, update } = writable({
+  const { subscribe, set, update } = writable<QuestState>({
     status: "not_joined",
     currentRound: 1,
     maxRounds: 3,
@@ -57,15 +90,12 @@ function createQuestStore() {
 
   return {
     subscribe,
-    joinQuest: async () => {
+    joinQuest: async (): Promise<void> => {
       try {
-        // Set pending status
         update((state) => ({ ...state, status: "pending", isLoading: true }));
 
-        // Simulate blockchain response
         await new Promise((resolve) => setTimeout(resolve, 2000));
 
-        // Set accepted status and initialize quest state
         update((state) => ({
           ...state,
           status: "accepted",
@@ -79,10 +109,9 @@ function createQuestStore() {
         update((state) => ({ ...state, status: "rejected", isLoading: false }));
       }
     },
-    performAction: async (action) => {
+    performAction: async (action: Action): Promise<void> => {
       update((state) => ({ ...state, isLoading: true }));
       try {
-        // Simulate blockchain interaction delay
         await new Promise((resolve) => setTimeout(resolve, 2000));
 
         update((state) => {
@@ -113,10 +142,8 @@ function createQuestStore() {
         update((state) => ({ ...state, isLoading: false }));
       }
     },
-    checkUserQuests: async () => {
+    checkUserQuests: async (): Promise<void> => {
       try {
-        // This would need to be implemented based on your contract's quest enumeration
-        // For now, we'll simulate it
         update((state) => ({
           ...state,
           activeQuests: [
@@ -128,7 +155,7 @@ function createQuestStore() {
         console.error("Error checking quests:", error);
       }
     },
-    addToEventLog: (message) => {
+    addToEventLog: (message: string): void => {
       update((state) => {
         const newLog = [...state.eventLog, { message, timestamp: new Date() }];
         return {
@@ -137,7 +164,7 @@ function createQuestStore() {
         };
       });
     },
-    resetQuest: () => {
+    resetQuest: (): void => {
       set({
         status: "not_joined",
         currentRound: 1,
@@ -191,7 +218,7 @@ function createQuestStore() {
         ],
       });
     },
-    goBackToQuest: () => {
+    goBackToQuest: (): void => {
       update((state) => ({
         ...state,
         showHistory: false,
