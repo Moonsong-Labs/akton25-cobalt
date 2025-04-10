@@ -16,6 +16,14 @@ export const gpt4omini = new ChatOpenAI({
 	temperature: 0.7,
 });
 
+
+export const gpt4ominiLowTemp = new ChatOpenAI({
+	model: "gpt-4o-mini-2024-07-18",
+	temperature: 0
+});
+
+
+
 export const llama31withTools = new ChatOpenAI({
 	model: "klusterai/Meta-Llama-3.1-405B-Instruct-Turbo", // tools supported
 	configuration: {
