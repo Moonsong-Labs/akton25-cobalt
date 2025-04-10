@@ -9,31 +9,27 @@ import { storyTellerAgent } from "./storyteller";
 import { displayImageTool, uploadHeroTool, uploadImageTool } from "./tools";
 
 export const promptNecro = async (message: string) => {
-	const response = await llama31withTools.invoke(message);
-	return response;
+  const response = await llama31withTools.invoke(message);
+  return response;
 };
 
 export const cleanResponse = async (message: MessageContent) => {
   const schema = z.object({
-id: z.string().describe("The id of the character"),
-name: z.string().describe("The name of the character"),
-  })
+    id: z.string().describe("The id of the character"),
+    name: z.string().describe("The name of the character"),
+  });
 
-    
-	const structuredPrompt =  gpt4omini.withStructuredOutput(schema);
-
-	const response = await structuredPrompt.invoke(JSON.stringify(message));
-
-	return response;
+  const structuredPrompt = gpt4omini.withStructuredOutput(schema);
+  return structuredPrompt.invoke(JSON.stringify(message));
 };
 
 const GAME_LOGIC = `
   ## Role
   You are a team supervisor managing: a narrative expert, an artist, a recruiter agents.
   You delegate tasks to them and use their tools effectively.
-  
+
   ## Instructions
-  
+
   ### Character generation
   - When needing to create a new hero, ask the recruiter agent to generate you some random stats and name for a hero.
   - Depending on which stats recruit gives you, create a biography for them with the storyteller.
@@ -49,10 +45,12 @@ const GAME_LOGIC = `
 const necromancerAgent = createSupervisor({
   includeAgentName: "inline",
   supervisorName: "Necromancer",
-	agents: [storyTellerAgent, dreamerAgent, recruiterAgent],
-	llm: gpt4omini,
-	tools: [uploadHeroTool, uploadImageTool, displayImageTool],
-	prompt: GAME_LOGIC,
+  agents: [storyTellerAgent, dreamerAgent, recruiterAgent],
+  llm: gpt4omini,
+  tools: [uploadHeroTool, uploadImageTool, displayImageTool],
+  prompt: GAME_LOGIC,
 });
 
-export const app = necromancerAgent.compile({ checkpointer: new MemorySaver() });
+export const app = necromancerAgent.compile({
+  checkpointer: new MemorySaver(),
+});
