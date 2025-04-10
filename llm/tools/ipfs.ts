@@ -15,8 +15,8 @@ export async function upload_to_ipfs(name: string, content: string) {
     });
     const upload = await pinata.upload.public.file(file);
     console.log(upload);
-
     return upload;
+
   } catch (error) {
     console.error("Error uploading to IPFS:", error);
     throw error;
