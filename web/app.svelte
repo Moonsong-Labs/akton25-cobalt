@@ -5,14 +5,8 @@
   import Footer from "./components/Footer.svelte";
   import QuestLog from "./components/QuestLog.svelte";
   import Tavern from "./components/Tavern.svelte";
-  import Dragon from "./components/background-elements/Dragon.svelte";
-  import SwordFight from "./components/background-elements/SwordFight.svelte";
-  import BeerMug from "./components/background-elements/BeerMug.svelte";
-  import Treasure from "./components/background-elements/Treasure.svelte";
-  import Ghost from "./components/background-elements/Ghost.svelte";
-  import Portal from "./components/background-elements/Portal.svelte";
-  import Wizard from "./components/background-elements/Wizard.svelte";
-  import Crystal from "./components/background-elements/Crystal.svelte";
+  import QuestHistory from "./components/QuestHistory.svelte";
+  import Background from "./components/Background.svelte";
 
   // Contract ABIs
   const QUEST_ABI = [
@@ -249,18 +243,7 @@
 </svelte:head>
 
 <div class="max-w-7xl mx-auto px-8 py-16 relative">
-  <!-- Background Elements -->
-  <div class="background-container">
-    <Dragon />
-    <SwordFight />
-    <BeerMug />
-    <Crystal />
-    <Portal />
-    <Wizard />
-    <Treasure />
-    <Ghost />
-  </div>
-
+  <Background />
   <div class="content-overlay"></div>
 
   <header class="text-center mb-12 relative">
@@ -352,33 +335,7 @@
           {/if}
         </div>
       {:else}
-        <div class="history-section">
-          <h3 class="text-3xl font-medieval text-dnd-gold mb-6 text-center">
-            Your Quest Chronicle
-          </h3>
-          <div class="history-timeline">
-            {#each actionHistory as entry, i}
-              <div class="history-entry">
-                <div class="history-round">Round {entry.round}</div>
-                <div class="history-description">{entry.description}</div>
-                <div class="history-action">You chose to: {entry.action}</div>
-              </div>
-            {/each}
-          </div>
-          <div class="text-center mt-8">
-            <button
-              class="quest-button"
-              on:click={() => {
-                currentRound = 1;
-                actionHistory = [];
-                showHistory = false;
-              }}
-            >
-              <span>Begin New Quest</span>
-              <span class="text-2xl">��</span>
-            </button>
-          </div>
-        </div>
+        <QuestHistory {actionHistory} {currentRound} {showHistory} />
       {/if}
     {/if}
   </main>
@@ -397,14 +354,4 @@
 
 <style>
   /* ... existing styles ... */
-
-  .background-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    overflow: hidden;
-  }
 </style>
