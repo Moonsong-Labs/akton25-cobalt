@@ -35,5 +35,5 @@ environment variable files
 # Finder (MacOS) folder config
 .DS_Store
 dream.png
-
+.zed
 generated/*

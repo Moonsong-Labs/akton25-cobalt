@@ -5,6 +5,7 @@
 	"private": true,
 	"scripts": {
 		"start": "bun run llm/index.ts",
+		"start:backend": "bun run backend/server.ts",
 		"fmt": "biome check --write ."
 	},
 	"devDependencies": {
@@ -23,13 +24,16 @@
 		"@langchain/google-genai": "^0.2.3",
 		"@langchain/langgraph": "^0.2.63",
 		"@langchain/langgraph-supervisor": "^0.0.11",
+		"@langchain/mistralai": "^0.2.0",
 		"@langchain/openai": "^0.5.5",
+		"@types/uuid": "^10.0.0",
 		"cfonts": "^3.3.0",
 		"ethers": "^6.13.5",
 		"imgcat": "^2.3.0",
 		"langchain": "^0.3.21",
 		"pinata": "^2.2.0",
 		"terminal-image": "^3.1.1",
+		"uuid": "^11.1.0",
 		"zod": "^3.24.2"
 	}
 }
