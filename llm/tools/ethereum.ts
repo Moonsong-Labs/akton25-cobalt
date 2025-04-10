@@ -1,4 +1,6 @@
 import { ethers } from "ethers";
+import { DynamicStructuredTool } from "langchain/tools";
+import { z } from "zod";
 import Quest from "../../contracts/out/Quest.sol/Quest.json";
 import Tavern from "../../contracts/out/Tavern.sol/Tavern.json";
 
@@ -13,8 +15,18 @@ export function getSigner(privateKey: string): ethers.Signer {
 
 // Types matching the Solidity contracts
 export type QuestStatus = "OPEN" | "IN_PROGRESS" | "FINISHED";
-export type Task = "ROMANCE" | "FIGHT" | "BRIBE" | "PERSUADE" | "SNEAK";
-export type Outcome = "PASS" | "FAIL";
+export enum Task {
+	ROMANCE = "ROMANCE",
+	FIGHT = "FIGHT",
+	BRIBE = "BRIBE",
+	PERSUADE = "PERSUADE",
+	SNEAK = "SNEAK",
+}
+
+export enum Outcome {
+	PASS = "PASS",
+	FAIL = "FAIL",
+}
 
 export interface HeroStats {
 	strength: number;
@@ -107,6 +119,20 @@ export async function createQuest(
 	return Number(event.args.questId);
 }
 
+export const createQuestTool = new DynamicStructuredTool({
+	name: "createQuest",
+	description: "Create a new quest",
+	schema: z.object({
+		questAddress: z.string().describe("The address of the quest"),
+		private_key: z.string().describe("The private key of the quest"),
+		metadataUrl: z.string().describe("The URL of the quest metadata"),
+	}),
+	func: async ({ questAddress, private_key, metadataUrl }) => {
+		const questId = await createQuest(questAddress, private_key, metadataUrl);
+		return `Quest created successfully: ${questId}`;
+	},
+});
+
 export async function joinQuest(
 	questAddress: string,
 	private_key: string,
@@ -120,6 +146,21 @@ export async function joinQuest(
 	await tx.wait();
 }
 
+export const joinQuestTool = new DynamicStructuredTool({
+	name: "joinQuest",
+	description: "Join a quest",
+	schema: z.object({
+		questAddress: z.string().describe("The address of the quest"),
+		private_key: z.string().describe("The private key of the quest"),
+		questId: z.number().describe("The ID of the quest"),
+		heroId: z.number().describe("The ID of the hero"),
+	}),
+	func: async ({ questAddress, private_key, questId, heroId }) => {
+		await joinQuest(questAddress, private_key, questId, heroId);
+		return "Hero joined quest successfully";
+	},
+});
+
 export async function startQuest(
 	questAddress: string,
 	private_key: string,
@@ -130,6 +171,20 @@ export async function startQuest(
 	);
 	await tx.wait();
 }
+
+export const startQuestTool = new DynamicStructuredTool({
+	name: "startQuest",
+	description: "Start a quest",
+	schema: z.object({
+		questAddress: z.string().describe("The address of the quest"),
+		private_key: z.string().describe("The private key of the quest"),
+		questId: z.number().describe("The ID of the quest"),
+	}),
+	func: async ({ questAddress, private_key, questId }) => {
+		await startQuest(questAddress, private_key, questId);
+		return "Quest started successfully";
+	},
+});
 
 export async function performTask(
 	questAddress: string,
@@ -146,6 +201,22 @@ export async function performTask(
 	await tx.wait();
 }
 
+export const performTaskTool = new DynamicStructuredTool({
+	name: "performTask",
+	description: "Perform a task",
+	schema: z.object({
+		questAddress: z.string().describe("The address of the quest"),
+		private_key: z.string().describe("The private key of the quest"),
+		questId: z.number().describe("The ID of the quest"),
+		heroId: z.number().describe("The ID of the hero"),
+		task: z.nativeEnum(Task).describe("The task to perform"),
+	}),
+	func: async ({ questAddress, private_key, questId, heroId, task }) => {
+		await performTask(questAddress, private_key, questId, heroId, task);
+		return "Task performed successfully";
+	},
+});
+
 export async function resolveTask(
 	questAddress: string,
 	private_key: string,
@@ -159,6 +230,21 @@ export async function resolveTask(
 	await tx.wait();
 }
 
+export const resolveTaskTool = new DynamicStructuredTool({
+	name: "resolveTask",
+	description: "Resolve a task",
+	schema: z.object({
+		questAddress: z.string().describe("The address of the quest"),
+		private_key: z.string().describe("The private key of the quest"),
+		questId: z.number().describe("The ID of the quest"),
+		outcome: z.nativeEnum(Outcome).describe("The outcome of the task"),
+	}),
+	func: async ({ questAddress, private_key, questId, outcome }) => {
+		await resolveTask(questAddress, private_key, questId, outcome);
+		return "Task resolved successfully";
+	},
+});
+
 export async function finishQuest(
 	questAddress: string,
 	private_key: string,
@@ -170,6 +256,20 @@ export async function finishQuest(
 	await tx.wait();
 }
 
+export const finishQuestTool = new DynamicStructuredTool({
+	name: "finishQuest",
+	description: "Finish a quest",
+	schema: z.object({
+		questAddress: z.string().describe("The address of the quest"),
+		private_key: z.string().describe("The private key of the quest"),
+		questId: z.number().describe("The ID of the quest"),
+	}),
+	func: async ({ questAddress, private_key, questId }) => {
+		await finishQuest(questAddress, private_key, questId);
+		return "Quest finished successfully";
+	},
+});
+
 export async function getQuestHeroes(
 	questAddress: string,
 	private_key: string,
@@ -180,6 +280,20 @@ export async function getQuestHeroes(
 	).map((id: ethers.BigNumberish) => Number(id));
 }
 
+export const getQuestHeroesTool = new DynamicStructuredTool({
+	name: "getQuestHeroes",
+	description: "Get the heroes of a quest",
+	schema: z.object({
+		questAddress: z.string().describe("The address of the quest"),
+		private_key: z.string().describe("The private key of the quest"),
+		questId: z.number().describe("The ID of the quest"),
+	}),
+	func: async ({ questAddress, private_key, questId }) => {
+		const heroes = await getQuestHeroes(questAddress, private_key, questId);
+		return `Heroes: ${heroes.join(", ")}`;
+	},
+});
+
 export async function getQuestUrl(
 	questAddress: string,
 	private_key: string,
@@ -187,6 +301,20 @@ export async function getQuestUrl(
 ): Promise<string> {
 	return await getQuestContract(questAddress, private_key).url(questId);
 }
+
+export const getQuestUrlTool = new DynamicStructuredTool({
+	name: "getQuestUrl",
+	description: "Get the URL of a quest",
+	schema: z.object({
+		questAddress: z.string().describe("The address of the quest"),
+		private_key: z.string().describe("The private key of the quest"),
+		questId: z.number().describe("The ID of the quest"),
+	}),
+	func: async ({ questAddress, private_key, questId }) => {
+		const url = await getQuestUrl(questAddress, private_key, questId);
+		return `URL: ${url}`;
+	},
+});
 
 // Tavern Contract Interactions
 export async function recruitHero(
@@ -211,6 +339,37 @@ export async function recruitHero(
 	return Number(event.args.heroId);
 }
 
+export const recruitHeroTool = new DynamicStructuredTool({
+	name: "recruitHero",
+	description: "Recruit a hero",
+	schema: z.object({
+		tavernAddress: z.string().describe("The address of the tavern"),
+		private_key: z.string().describe("The private key of the tavern"),
+		master: z.string().describe("The master of the hero"),
+		name: z.string().describe("The name of the hero"),
+		uri: z.string().describe("The URI of the hero"),
+		stats: z.object({
+			strength: z.number().describe("The strength of the hero"),
+			dexterity: z.number().describe("The dexterity of the hero"),
+			willPower: z.number().describe("The will power of the hero"),
+			intelligence: z.number().describe("The intelligence of the hero"),
+			charisma: z.number().describe("The charisma of the hero"),
+			constitution: z.number().describe("The constitution of the hero"),
+		}),
+	}),
+	func: async ({ tavernAddress, private_key, master, name, uri, stats }) => {
+		const heroId = await recruitHero(
+			tavernAddress,
+			private_key,
+			master,
+			name,
+			uri,
+			stats,
+		);
+		return `Hero recruited successfully: ${heroId}`;
+	},
+});
+
 export async function getHeroInfo(
 	tavernAddress: string,
 	private_key: string,
@@ -219,6 +378,20 @@ export async function getHeroInfo(
 	return await getTavernContract(tavernAddress, private_key).heroInfo(heroId);
 }
 
+export const getHeroInfoTool = new DynamicStructuredTool({
+	name: "getHeroInfo",
+	description: "Get the info of a hero",
+	schema: z.object({
+		tavernAddress: z.string().describe("The address of the tavern"),
+		private_key: z.string().describe("The private key of the tavern"),
+		heroId: z.number().describe("The ID of the hero"),
+	}),
+	func: async ({ tavernAddress, private_key, heroId }) => {
+		const heroInfo = await getHeroInfo(tavernAddress, private_key, heroId);
+		return `Hero info: ${JSON.stringify(heroInfo)}`;
+	},
+});
+
 export async function isHeroActive(
 	tavernAddress: string,
 	private_key: string,
@@ -226,6 +399,20 @@ export async function isHeroActive(
 ): Promise<boolean> {
 	return await getTavernContract(tavernAddress, private_key).isActive(heroId);
 }
+
+export const isHeroActiveTool = new DynamicStructuredTool({
+	name: "isHeroActive",
+	description: "Check if a hero is active",
+	schema: z.object({
+		tavernAddress: z.string().describe("The address of the tavern"),
+		private_key: z.string().describe("The private key of the tavern"),
+		heroId: z.number().describe("The ID of the hero"),
+	}),
+	func: async ({ tavernAddress, private_key, heroId }) => {
+		const isActive = await isHeroActive(tavernAddress, private_key, heroId);
+		return `Hero is active: ${isActive}`;
+	},
+});
 
 // Helper function to convert between Solidity enums and TypeScript strings
 export function questStatusToNumber(status: QuestStatus): number {

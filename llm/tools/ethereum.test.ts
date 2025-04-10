@@ -3,18 +3,20 @@ import { ethers } from "ethers";
 import Quest from "../../contracts/out/Quest.sol/Quest.json";
 import Tavern from "../../contracts/out/Tavern.sol/Tavern.json";
 import {
-	createQuest,
-	joinQuest,
-	startQuest,
-	performTask,
-	getQuestHeroes,
-	recruitHero,
-	getHeroInfo,
-	isHeroActive,
-	questStatusToNumber,
-	taskToNumber,
-	outcomeToNumber,
+	Outcome,
+	Task,
 	type TavernContract,
+	createQuest,
+	getHeroInfo,
+	getQuestHeroes,
+	isHeroActive,
+	joinQuest,
+	outcomeToNumber,
+	performTask,
+	questStatusToNumber,
+	recruitHero,
+	startQuest,
+	taskToNumber,
 } from "./ethereum";
 
 // Anvil test setup
@@ -76,14 +78,22 @@ test("should create a new quest", async () => {
 	const { questAddress } = await setupTest();
 	const metadataUrl = "https://example.com/quest1";
 
-	const questId = await createQuest(questAddress, ANVIL_PRIVATE_KEY, metadataUrl);
+	const questId = await createQuest(
+		questAddress,
+		ANVIL_PRIVATE_KEY,
+		metadataUrl,
+	);
 	expect(questId).toBe(0); // First quest should have ID 0
 });
 
 test("should join a quest", async () => {
 	const { questAddress, tavernAddress } = await setupTest();
 	const metadataUrl = "https://example.com/quest1";
-	const questId = await createQuest(questAddress, ANVIL_PRIVATE_KEY, metadataUrl);
+	const questId = await createQuest(
+		questAddress,
+		ANVIL_PRIVATE_KEY,
+		metadataUrl,
+	);
 
 	// First create a hero
 	const heroId = await recruitHero(
@@ -108,7 +118,11 @@ test("should join a quest", async () => {
 test("should perform a task", async () => {
 	const { questAddress, tavernAddress } = await setupTest();
 	const metadataUrl = "https://example.com/quest1";
-	const questId = await createQuest(questAddress, ANVIL_PRIVATE_KEY, metadataUrl);
+	const questId = await createQuest(
+		questAddress,
+		ANVIL_PRIVATE_KEY,
+		metadataUrl,
+	);
 
 	// Create a hero
 	const heroId = await recruitHero(
@@ -129,13 +143,23 @@ test("should perform a task", async () => {
 
 	await joinQuest(questAddress, ANVIL_PRIVATE_KEY, questId, heroId);
 	await startQuest(questAddress, ANVIL_PRIVATE_KEY, questId);
-	await performTask(questAddress, ANVIL_PRIVATE_KEY, questId, heroId, "FIGHT");
+	await performTask(
+		questAddress,
+		ANVIL_PRIVATE_KEY,
+		questId,
+		heroId,
+		Task.FIGHT,
+	);
 });
 
 test("should get quest heroes", async () => {
 	const { questAddress, tavernAddress } = await setupTest();
 	const metadataUrl = "https://example.com/quest1";
-	const questId = await createQuest(questAddress, ANVIL_PRIVATE_KEY, metadataUrl);
+	const questId = await createQuest(
+		questAddress,
+		ANVIL_PRIVATE_KEY,
+		metadataUrl,
+	);
 
 	// Create a hero
 	const heroId = await recruitHero(
@@ -235,14 +259,14 @@ test("should convert quest status to number", () => {
 });
 
 test("should convert task to number", () => {
-	expect(taskToNumber("ROMANCE")).toBe(0);
-	expect(taskToNumber("FIGHT")).toBe(1);
-	expect(taskToNumber("BRIBE")).toBe(2);
-	expect(taskToNumber("PERSUADE")).toBe(3);
-	expect(taskToNumber("SNEAK")).toBe(4);
+	expect(taskToNumber(Task.ROMANCE)).toBe(0);
+	expect(taskToNumber(Task.FIGHT)).toBe(1);
+	expect(taskToNumber(Task.BRIBE)).toBe(2);
+	expect(taskToNumber(Task.PERSUADE)).toBe(3);
+	expect(taskToNumber(Task.SNEAK)).toBe(4);
 });
 
 test("should convert outcome to number", () => {
-	expect(outcomeToNumber("PASS")).toBe(0);
-	expect(outcomeToNumber("FAIL")).toBe(1);
+	expect(outcomeToNumber(Outcome.PASS)).toBe(0);
+	expect(outcomeToNumber(Outcome.FAIL)).toBe(1);
 });

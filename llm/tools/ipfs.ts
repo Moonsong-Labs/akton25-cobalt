@@ -25,26 +25,6 @@ export async function upload_json_to_ipfs(
 	}
 }
 
-export async function upload_image_to_ipfs(
-	imagePath: string,
-): Promise<UploadResponse> {
-	try {
-		// read image from assets
-		const bunFile = Bun.file(imagePath);
-		const arrayBuffer = await bunFile.arrayBuffer();
-		const imageFile = new File([arrayBuffer], "hero.png", {
-			type: "image/png",
-		});
-
-		const upload = await pinata.upload.public.file(imageFile);
-		console.log(upload);
-		return upload;
-	} catch (error) {
-		console.error("Error uploading image to IPFS:", error);
-		throw error;
-	}
-}
-
 export const uploadHeroTool = new DynamicStructuredTool({
 	name: "uploadHero",
 	description: "Upload a Hero to IPFS using Pinata",
@@ -71,6 +51,26 @@ export const uploadHeroTool = new DynamicStructuredTool({
 		return `JSON uploaded successfully: ${upload.cid}`;
 	},
 });
+
+export async function upload_image_to_ipfs(
+	imagePath: string,
+): Promise<UploadResponse> {
+	try {
+		// read image from assets
+		const bunFile = Bun.file(imagePath);
+		const arrayBuffer = await bunFile.arrayBuffer();
+		const imageFile = new File([arrayBuffer], "hero.png", {
+			type: "image/png",
+		});
+
+		const upload = await pinata.upload.public.file(imageFile);
+		console.log(upload);
+		return upload;
+	} catch (error) {
+		console.error("Error uploading image to IPFS:", error);
+		throw error;
+	}
+}
 
 export const uploadImageTool = new DynamicStructuredTool({
 	name: "uploadImage",
