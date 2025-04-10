@@ -51,10 +51,9 @@ const server = Bun.serve({
 
             const lastMessage = result.messages[result.messages.length - 1];
             assert(lastMessage?.content, "No last message");
-            const cleanedResponse = await cleanResponse(lastMessage.content);
 
             // Store result on success
-            jobStore[jobId] = { status: "completed", result: cleanedResponse };
+            jobStore[jobId] = { status: "completed", result: "ok" };
             console.log(`Job ${jobId} completed successfully.`);
           } catch (error) {
             console.error(`Job ${jobId} failed:`, error);
