@@ -7,6 +7,7 @@ import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import terminalImage from "terminal-image";
 import { z } from "zod";
 import { googleAi, gpt4omini } from "./models";
+import { uploadImageTool } from "./tools/ipfs";
 
 const promptTemplate = (userPrompt: string) => `
   Generate a single high-quality art asset based precisely on the object or scene described below. The style should be consistently applied as specified in the THEME section.
@@ -136,7 +137,12 @@ const displayImageTool = tool(
 export const dreamerAgent = createReactAgent({
 	llm: gpt4omini,
 	name: "Dreamer",
-	tools: [generateImageAndSaveTool, promptTemplateTool, displayImageTool],
+	tools: [
+		generateImageAndSaveTool,
+		promptTemplateTool,
+		displayImageTool,
+		uploadImageTool,
+	],
 	prompt:
 		"You are an AI assistant that helps generate images based on user prompts. " +
 		"Use the promptTemplate tool to format user requests into detailed image generation prompts. " +
