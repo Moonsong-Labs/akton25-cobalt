@@ -1,6 +1,8 @@
-import { writable } from "svelte/store";
+import { writable, get } from "svelte/store";
 import type { Writable } from "svelte/store";
 import { ethers, BrowserProvider, Contract } from "ethers";
+import Quest from "../../contracts/out/Quest.sol/Quest.json";
+import Tavern from "../../contracts/out/Tavern.sol/Tavern.json";
 
 interface Hero {
   id: number;
@@ -15,27 +17,16 @@ interface WalletState {
   questContract: Contract | null;
   tavernContract: Contract | null;
   userHeroes: Hero[];
+  heroCount: number;
 }
 
-// Contract ABIs
-export const QUEST_ABI = [
-  "event QuestStatusUpdated(uint256 indexed questId, uint8 status)",
-  "event HeroEnrolled(uint256 indexed questId, uint256 indexed heroId)",
-  "event TaskPerformed(uint256 indexed questId, uint256 indexed heroId, uint8 task)",
-  "function joinQuest(uint256 questId, uint256 heroId)",
-  "function performTask(uint256 questId, uint256 heroId, uint8 task)",
-  "function questHeroes(uint256 questId) view returns (uint256[])",
-  "function url(uint256 questId) view returns (string)",
-];
+// Contract addresses from environment variables
+const QUEST_ADDRESS = import.meta.env["VITE_QUEST_ADDRESS"];
+const TAVERN_ADDRESS = import.meta.env["VITE_TAVERN_ADDRESS"];
 
-export const TAVERN_ABI = [
-  "function ownerOf(uint256 tokenId) view returns (address)",
-  "function heroInfo(uint256 id) view returns ((string,uint256,string,uint256,(uint256,uint256,uint256,uint256,uint256,uint256)))",
-];
-
-// Contract addresses (to be replaced with actual addresses)
-export const QUEST_ADDRESS = "0x...";
-export const TAVERN_ADDRESS = "0x...";
+if (!QUEST_ADDRESS || !TAVERN_ADDRESS) {
+  throw new Error("Missing required environment variables: VITE_QUEST_ADDRESS and/or VITE_TAVERN_ADDRESS");
+}
 
 function createWalletStore() {
   const { subscribe, set, update } = writable<WalletState>({
@@ -45,6 +36,7 @@ function createWalletStore() {
     questContract: null,
     tavernContract: null,
     userHeroes: [],
+    heroCount: 0,
   });
 
   return {
@@ -59,14 +51,21 @@ function createWalletStore() {
           // Initialize contracts
           const questContract = new ethers.Contract(
             QUEST_ADDRESS,
-            QUEST_ABI,
+            Quest.abi,
             provider
           );
           const tavernContract = new ethers.Contract(
             TAVERN_ADDRESS,
-            TAVERN_ABI,
+            Tavern.abi,
             provider
           );
+
+          console.log("tavernContract", tavernContract);
+          console.log("account", account);
+
+          // Check hero balance
+          const heroCount = await tavernContract["balanceOf"](account);
+          console.log("Hero count:", heroCount.toString());
 
           // Load user's heroes
           const userHeroes = await loadUserHeroes(tavernContract);
@@ -78,6 +77,7 @@ function createWalletStore() {
             questContract,
             tavernContract,
             userHeroes,
+            heroCount: Number(heroCount),
           });
 
           return true;
@@ -98,7 +98,23 @@ function createWalletStore() {
         questContract: null,
         tavernContract: null,
         userHeroes: [],
+        heroCount: 0,
       });
+    },
+    checkBalance: async (): Promise<void> => {
+      try {
+        const state = get(wallet);
+        if (state.tavernContract && state.account) {
+          const balance = await state.tavernContract["balanceOf"](state.account);
+          update((state) => ({
+            ...state,
+            heroCount: Number(balance),
+          }));
+          console.log("Updated hero count:", Number(balance));
+        }
+      } catch (error) {
+        console.error("Error checking balance:", error);
+      }
     },
   };
 }

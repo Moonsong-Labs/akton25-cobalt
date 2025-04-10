@@ -69,6 +69,10 @@
               -4
             )}</span
           >
+          <div class="hero-count">
+            <span class="text-2xl">⚔️</span>
+            <span>Heroes: {$wallet.heroCount}</span>
+          </div>
           <MintHero />
         </div>
       {/if}
@@ -101,4 +105,13 @@
 
 <style>
   /* ... existing styles ... */
+
+  .hero-count {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.5rem 0;
+    color: var(--dnd-gold);
+    font-family: "Cinzel", serif;
+  }
 </style>

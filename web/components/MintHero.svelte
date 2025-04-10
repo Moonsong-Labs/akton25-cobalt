@@ -51,6 +51,8 @@
       if (data.status === "completed") {
         mintedHero = data.result;
         isMinting = false;
+        // Check balance after successful mint
+        await wallet.checkBalance();
       } else if (data.status === "pending") {
         // Poll again after 2 seconds
         setTimeout(pollMintStatus, 2000);
