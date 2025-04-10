@@ -31,13 +31,7 @@ describe("IPFS Upload", () => {
 	});
 
 	test("should upload image successfully", async () => {
-		// read image from assets
-		const bunFile = Bun.file("assets/hero.png");
-		const arrayBuffer = await bunFile.arrayBuffer();
-		const imageFile = new File([arrayBuffer], "hero.png", {
-			type: "image/png",
-		});
-		const upload = await upload_image_to_ipfs(imageFile);
+		const upload = await upload_image_to_ipfs("assets/hero.png");
 		expect(upload.id).toBeDefined();
 
 		// test by fetching the content from IPFS
