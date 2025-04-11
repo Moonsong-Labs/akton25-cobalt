@@ -1,46 +1,55 @@
 {
-  "name": "akton25-cobalt",
-  "module": "index.ts",
-  "type": "module",
-  "private": true,
-  "scripts": {
-    "start": "bun run llm/index.ts",
-    "start:backend": "bun run backend/server.ts",
-    "fmt": "biome check --write ."
-  },
-  "devDependencies": {
-    "@biomejs/biome": "1.9.4",
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
-  "dependencies": {
-    "@google/genai": "^0.8.0",
-    "@inquirer/prompts": "^7.4.1",
-    "@langchain/anthropic": "^0.3.17",
-    "@langchain/community": "^0.3.40",
-    "@langchain/core": "^0.3.44",
-    "@langchain/google-genai": "^0.2.3",
-    "@langchain/langgraph": "^0.2.63",
-    "@langchain/langgraph-supervisor": "^0.0.11",
-    "@langchain/mistralai": "^0.2.0",
-    "@langchain/openai": "^0.5.5",
-    "@types/uuid": "^10.0.0",
-    "@web3-storage/w3up-client": "^17.2.0",
-    "cfonts": "^3.3.0",
-    "dotenv": "^16.4.7",
-    "ethers": "^6.13.5",
-    "imgcat": "^2.3.0",
-    "langchain": "^0.3.21",
-    "pinata": "^2.2.0",
-    "terminal-image": "^3.1.1",
-    "uuid": "^11.1.0",
-    "web3.storage": "^4.5.5",
-    "zod": "^3.24.2"
-  },
-  "trustedDependencies": [
-    "@biomejs/biome",
-    "protobufjs"
-  ]
+	"name": "akton25-cobalt",
+	"module": "index.ts",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"start": "bun run llm/index.ts",
+		"start:backend": "bun run backend/server.ts",
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview",
+		"fmt": "biome check --write ."
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
+		"@sveltejs/vite-plugin-svelte": "^3.0.0",
+		"@types/bun": "latest",
+		"autoprefixer": "10.4.17",
+		"postcss": "8.4.35",
+		"tailwindcss": "3.4.1",
+		"vite": "^5.0.0"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	},
+	"dependencies": {
+		"@google/genai": "^0.8.0",
+		"@inquirer/prompts": "^7.4.1",
+		"@langchain/anthropic": "^0.3.17",
+		"@langchain/community": "^0.3.40",
+		"@langchain/core": "^0.3.44",
+		"@langchain/google-genai": "^0.2.3",
+		"@langchain/langgraph": "^0.2.63",
+		"@langchain/langgraph-supervisor": "^0.0.11",
+		"@langchain/mistralai": "^0.2.0",
+		"@langchain/openai": "^0.5.5",
+		"@types/uuid": "^10.0.0",
+		"@web3-storage/w3up-client": "^17.2.0",
+		"cfonts": "^3.3.0",
+		"dotenv": "^16.4.7",
+		"ethers": "^6.13.5",
+		"imgcat": "^2.3.0",
+		"langchain": "^0.3.21",
+		"pinata": "^2.2.0",
+		"svelte": "^4.2.12",
+		"terminal-image": "^3.1.1",
+		"uuid": "^11.1.0",
+		"web3.storage": "^4.5.5",
+		"zod": "^3.24.2"
+	},
+	"trustedDependencies": [
+		"@biomejs/biome",
+		"protobufjs"
+	]
 }
