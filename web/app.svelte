@@ -79,8 +79,8 @@
           </h3>
           <div class="welcome-text">
             <p class="mb-4">
-              In this mystical realm, where magic flows through the
-              very fabric of reality, a new chapter of adventure awaits!
+              In this mystical realm, where magic flows through the very fabric
+              of reality, a new chapter of adventure awaits!
             </p>
 
             <p class="mb-4">
@@ -132,10 +132,6 @@
               6
             )}...{$wallet.account.slice(-4)}</span
           >
-          <!-- <div class="hero-count">
-            <span class="text-2xl">⚔️</span>
-            <span>Heroes in your party: {$wallet.heroCount}</span>
-          </div> -->
         </div>
       {/if}
     </div>
