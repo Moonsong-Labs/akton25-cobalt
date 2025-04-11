@@ -1,15 +1,15 @@
 <script>
   import { onMount } from "svelte";
   import "./styles.css";
-  import Footer from "./components/Footer.svelte";
-  import QuestLog from "./components/QuestLog.svelte";
-  import Tavern from "./components/Tavern.svelte";
   import Background from "./components/Background.svelte";
-  import QuestSection from "./components/QuestSection.svelte";
+  import Footer from "./components/Footer.svelte";
   import HeroSelection from "./components/HeroSelection.svelte";
-  import { wallet } from "./stores/wallet.ts";
-  import { quest } from "./stores/quest.ts";
   import MintHero from "./components/MintHero.svelte";
+  import QuestLog from "./components/QuestLog.svelte";
+  import QuestSection from "./components/QuestSection.svelte";
+  import Tavern from "./components/Tavern.svelte";
+  import { quest } from "./stores/quest.ts";
+  import { wallet } from "./stores/wallet.ts";
 
   let showQuestLog = false;
   let showTavern = false;

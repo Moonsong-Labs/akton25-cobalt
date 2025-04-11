@@ -6,7 +6,7 @@ import { Tavern } from "./Tavern.sol";
 import { EnumerableSet } from "@openzeppelin-contracts/utils/structs/EnumerableSet.sol";
 
 contract Quest is Ownable {
-    uint8 public constant MAX_HEROES = 3;
+    uint8 public constant MAX_HEROES = 1;
     uint8 public constant MAX_TASKS = 3;
 
     using EnumerableSet for EnumerableSet.UintSet;
@@ -139,7 +139,6 @@ contract Quest is Ownable {
         onlyEnrolledHero(questId, heroId)
         when(questId, QuestStatus.IN_PROGRESS)
     {
-
         QuestDetails storage quest = _quests[questId];
         quest.progress.push(Round({ heroId: heroId, outcome: taskOutcome }));
         quest.metadataUrl = metadataUrl;

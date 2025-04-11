@@ -7,67 +7,9 @@
   export let mainHero = null;
   const dispatch = createEventDispatcher();
 
-  let selectedHero = userHeroes[0];
-  let metadataStatus = "idle"; // idle, loading, success, error
-  let activeGateway = "";
-  let heroImage = null;
-  let isImageLoading = false;
+  let selectedHero = userHeroes.length > 0 ? userHeroes[0] : null;
 
-  const ipfsGateways = [
-    "https://gateway.pinata.cloud/ipfs/",
-    "https://cf-ipfs.com/ipfs/",
-    "https://ipfs.io/ipfs/",
-    "https://dweb.link/ipfs/",
-    "https://4everland.io/ipfs/",
-    "https://w3s.link/ipfs/",
-    "https://nftstorage.link/ipfs/",
-    "https://storry.tv/ipfs/",
-    "https://cloudflare-ipfs.com/ipfs/",
-    "https://gateway.originprotocol.com/ipfs/",
-    "https://gateway.temporal.cloud/ipfs/",
-    "https://gateway.ipfs.io/ipfs/",
-    "https://ipfs.eternum.io/ipfs/",
-    "https://gateway.serph.network/ipfs/",
-    "https://hardbin.com/ipfs/",
-    "https://ipfs.jes.xxx/ipfs/",
-    "https://gateway.blocksec.com/ipfs/",
-    "https://ipfs.mrh.io/ipfs/",
-    "https://gateway.fleek.co/ipfs/",
-  ];
-
-  async function tryFetchMetadata(ipfs_cid_url) {
-    metadataStatus = "loading";
-    isImageLoading = true;
-    let success = false;
-
-    const cid = ipfs_cid_url.split("/").pop();
-
-    for (const gateway of ipfsGateways) {
-      try {
-        console.log(`Trying gateway: ${gateway}${cid}`);
-        const response = await fetch(`${gateway}${cid}`, { timeout: 10000 });
-        if (response.ok) {
-          const data = await response.json();
-          console.log("Success! Found metadata at:", `${gateway}${cid}`);
-          console.log("Metadata:", data);
-          metadataStatus = "success";
-          success = true;
-          heroImage =
-            "https://placehold.co/200x200/2e2216/ffd700?text=Hero+Image";
-          window.open(`${gateway}${cid}`, "_blank");
-          break;
-        }
-      } catch (error) {
-        console.error(`Failed with gateway ${gateway}:`, error);
-      }
-    }
-
-    if (!success) {
-      console.log("All gateways failed to retrieve metadata");
-      metadataStatus = "error";
-    }
-    isImageLoading = false;
-  }
+  $: heroImage = selectedHero ? selectedHero.imagePath : null;
 
   function handleClickOutside(event) {
     if (event.target.classList.contains("backdrop")) {
@@ -77,10 +19,6 @@
 
   function selectHero(hero) {
     selectedHero = hero;
-    metadataStatus = "idle";
-    activeGateway = "";
-    heroImage = null;
-    isImageLoading = false;
   }
 
   function setMainHero(hero) {
@@ -143,14 +81,11 @@
                       src={heroImage}
                       alt={selectedHero.name}
                       class="hero-image"
+                      onerror="this.onerror=null; this.src='https://placehold.co/200x200/2e2216/ffd700?text=Image+Not+Found';"
                     />
                   {:else}
                     <div class="hero-image-placeholder">
-                      {#if isImageLoading}
-                        <div class="image-spinner"></div>
-                      {:else}
-                        <span class="placeholder-text">Hero Image</span>
-                      {/if}
+                      <span class="placeholder-text">No Image</span>
                     </div>
                   {/if}
                 </div>
@@ -158,6 +93,11 @@
                   <h2 class="profile-name">{selectedHero.name}</h2>
                   <span class="profile-level">Level {selectedHero.level}</span>
                 </div>
+              </div>
+
+              <div class="profile-description">
+                <h3>Biography</h3>
+                <p>{selectedHero.description || "No biography available."}</p>
               </div>
 
               <div class="profile-stats">
@@ -233,22 +173,6 @@
                     <span class="cooldown-value">{selectedHero.cooldown}</span>
                   </div>
                   <div class="metadata-actions">
-                    <button
-                      class="metadata-link"
-                      on:click={() =>
-                        tryFetchMetadata(selectedHero.metadataUrl)}
-                      disabled={metadataStatus === "loading" ||
-                        metadataStatus === "error"}
-                    >
-                      {#if metadataStatus === "loading"}
-                        <span class="spinner"></span>
-                        <span class="loading-text">Finding Metadata...</span>
-                      {:else if metadataStatus === "error"}
-                        Couldn't find metadata
-                      {:else}
-                        Find Metadata
-                      {/if}
-                    </button>
                     <button
                       class="set-main-hero"
                       on:click={() => setMainHero(selectedHero)}
@@ -446,7 +370,7 @@
   .profile-header {
     display: flex;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     padding-bottom: 1rem;
     border-bottom: 1px solid rgba(255, 215, 0, 0.1);
   }
@@ -485,15 +409,6 @@
     text-align: center;
   }
 
-  .image-spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid rgba(255, 215, 0, 0.3);
-    border-radius: 50%;
-    border-top-color: #ffd700;
-    animation: spin 1s linear infinite;
-  }
-
   .hero-name-container {
     flex: 1;
   }
@@ -526,6 +441,25 @@
     right: 0;
     transform: translateY(-50%);
     animation: sparkle 2s infinite;
+  }
+
+  .profile-description {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    border: 1px solid rgba(255, 215, 0, 0.1);
+    color: #f0e6d2;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .profile-description h3 {
+    color: #d4af37;
+    margin-bottom: 0.75rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-align: center;
   }
 
   .profile-stats {
@@ -618,31 +552,6 @@
     gap: 0.5rem;
   }
 
-  .metadata-link {
-    color: #d4af37;
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    border: 1px solid rgba(255, 215, 0, 0.2);
-    border-radius: 4px;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    background: transparent;
-    cursor: pointer;
-    font-family: "Cinzel", serif;
-    font-size: 0.9rem;
-  }
-
-  .metadata-link:hover:not(:disabled) {
-    background: #ffd700;
-    color: #000;
-    box-shadow: 0 4px 8px rgba(255, 215, 0, 0.3);
-  }
-
-  .metadata-link:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-  }
-
   .level-badge {
     font-size: 0.9rem;
     color: #000;
@@ -665,29 +574,6 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-
-  .spinner {
-    display: inline-block;
-    width: 1rem;
-    height: 1rem;
-    border: 2px solid rgba(255, 215, 0, 0.3);
-    border-radius: 50%;
-    border-top-color: #ffd700;
-    animation: spin 1s ease-in-out infinite;
-    margin-right: 0.5rem;
-    vertical-align: middle;
-  }
-
-  .loading-text {
-    display: inline-block;
-    vertical-align: middle;
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
   }
 
   .set-main-hero {

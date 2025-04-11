@@ -2,6 +2,7 @@
 src = "src"
 out = "out"
 libs = ["dependencies"]
+solc_version = "0.8.27"
 
 [fmt]
 bracket_spacing = true
@@ -13,8 +14,12 @@ quote_style = "double"
 tab_width = 4
 wrap_comments = true
 
+[etherscan]
+testnet = { key = "${ETHERSCAN_API_KEY}", url = "https://api-moonbase.moonscan.io/api" }
+
 [rpc_endpoints]
 local = "http://127.0.0.1:8545"
+testnet = "https://rpc.testnet.moonbeam.network"
 
 [soldeer]
 # whether soldeer manages remappings
@@ -35,3 +40,6 @@ forge-std = { version = "1.9.6", git = "https://github.com/foundry-rs/forge-std.
 
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+
+
+#forge verify-contract --chain-id 1287 --watch --constructor-args $(cast abi-encode "constructor(address,address)" "0x6676F9fF6A27fd8f39E2fa5036F82ce14caA1a58" "0xDd3a2c847871d0ad48e1967db9222b204266414c") --etherscan-api-key T3855IA51I6ND5A3K7R5MJEHT4G6ETXBPV 0x96B715B66e866b58721001D5da05BE9CFC5c36C9 src/Quest.sol:Quest

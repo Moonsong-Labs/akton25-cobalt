@@ -1,7 +1,7 @@
-import { writable, get } from "svelte/store";
-import { wallet } from "./wallet";
-import { ethers } from "ethers";
 import type { QuestContract, TavernContract } from "$lib/types/ethereum";
+import { ethers } from "ethers";
+import { get, writable } from "svelte/store";
+import { wallet } from "./wallet";
 
 interface Action {
   id: string;

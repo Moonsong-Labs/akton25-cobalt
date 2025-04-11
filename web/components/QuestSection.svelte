@@ -88,6 +88,20 @@
           </div>
 
           <div class="quest-hero-summary">
+            <div class="quest-hero-image-container">
+              {#if mainHero.imagePath}
+                <img
+                  src={mainHero.imagePath}
+                  alt={mainHero.name}
+                  class="quest-hero-image"
+                  onerror="this.onerror=null; this.src='https://placehold.co/150x150/2e2216/ffd700?text=Hero';"
+                />
+              {:else}
+                <div class="quest-hero-image-placeholder">
+                  <span>⚔️</span>
+                </div>
+              {/if}
+            </div>
             <div class="quest-hero-header">
               <span class="quest-hero-name">{mainHero.name}</span>
               <span class="quest-hero-level">Lv. {mainHero.level}</span>
@@ -210,10 +224,40 @@
 
   .quest-hero-summary {
     background: rgba(42, 26, 18, 0.8);
-    padding: 0.75rem;
+    padding: 1rem;
     border-radius: 6px;
-    margin-bottom: 1.5rem;
+    margin-top: 1.5rem;
     border: 1px solid rgba(255, 215, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .quest-hero-image-container {
+    width: 100px;
+    height: 100px;
+    flex-shrink: 0;
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .quest-hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .quest-hero-image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: rgba(30, 15, 10, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: rgba(255, 215, 0, 0.5);
   }
 
   .quest-hero-header {
@@ -223,6 +267,7 @@
     margin-bottom: 0.5rem;
     padding-bottom: 0.5rem;
     border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+    flex-grow: 1;
   }
 
   .quest-hero-name {
@@ -243,6 +288,8 @@
     display: flex;
     justify-content: space-between;
     gap: 0.5rem;
+    flex-grow: 1;
+    margin-top: 0.5rem;
   }
 
   .quest-stat {

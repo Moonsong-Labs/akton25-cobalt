@@ -6,8 +6,7 @@ import { dreamerAgent } from "./dreamer";
 import { gpt4omini, gpt4ominiLowTemp, llama31withTools } from "./models";
 import { recruiterAgent } from "./recruiter";
 import { storyTellerAgent } from "./storyteller";
-import { displayImageTool, uploadHeroTool, uploadImageTool } from "./tools";
-import { createQuestTool, recruitHeroTool, startQuestTool } from "./tools/ethereum";
+import { createQuestTool, generateAndSaveHeroMetadataTool, recruitHeroTool, saveImageLocallyTool, startQuestTool, uploadHeroTool, uploadImageTool } from "./tools";
 
 export const promptNecro = async (message: string) => {
   const response = await llama31withTools.invoke(message);
@@ -30,6 +29,9 @@ const GAME_LOGIC = `
   You delegate tasks to them and use their tools effectively.
 
   ## Instructions
+  
+  ### Global Rules
+  - WHenever there is an error related to a missing environment variable or AssertionError, stop all execution and report the fault.
 
   ### Character generation
   - When needing to create a new hero, ask the recruiter agent to generate you some random stats and name for a hero.
@@ -39,12 +41,15 @@ const GAME_LOGIC = `
   - Ensure the dreamer returns the image name when it makes you an image.
   - Upload character image to ipfs using uploadImageTool.
   - Use the uploadHeroTool to persist a character to ipfs.
-  - Display the image using the displayImageTool using the local image path.
+  - Save generated hero images locally with saveImageLocallyTool  <heroname> (no spaces allLowercase)
+  - Save generated metadata locally with the  generateAndSaveHeroMetadataTool <heroname> (no spaces allLowercase)
   - **IMPORTANT** Mint character on chain by using the recruitHeroTool. Pass in the wallet address of the original user query to this tool. The cid should be a complete ifps url as the metadata uri parameter.
   - Return the character id to the user.
-  
-  ### Starting a Quest
-  - When a new quest is to be started, ask the storyTellerAgent to generate a new quest decription and scenario.
+
+  ### Creating a new Quest
+  - When a new quest is to be started, ask the storyTellerAgent to generate a new quest description and scenario.
+  - Use the tool generateQuestMetadataTool to generate and save metadata for the quest.
+  - Save the quest description and scenario to the generated/quests folder with name <questid.json>.
   - When a quest is to be started, call the startQuestTool to create a new quest.
   `;
 
@@ -53,7 +58,7 @@ const necromancerAgent = createSupervisor({
   supervisorName: "Necromancer",
   agents: [storyTellerAgent, dreamerAgent, recruiterAgent],
   llm: gpt4ominiLowTemp,
-  tools: [uploadHeroTool, uploadImageTool, displayImageTool,createQuestTool,startQuestTool, recruitHeroTool ],
+  tools: [uploadHeroTool, uploadImageTool,createQuestTool, startQuestTool, recruitHeroTool , saveImageLocallyTool, generateAndSaveHeroMetadataTool],
   prompt: GAME_LOGIC,
 });
 
