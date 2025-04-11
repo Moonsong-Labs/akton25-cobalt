@@ -52,7 +52,7 @@
 </script>
 
 <svelte:head>
-  <title>NAME GOES HERE - OnChain Adventures</title>
+  <title>Dungeons & Dragons - OnChain Adventures</title>
   <link
     href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=MedievalSharp&display=swap"
     rel="stylesheet"
@@ -65,7 +65,7 @@
 
   <header class="text-center mb-12 relative">
     <h1 class="text-6xl font-medieval text-dnd-gold mb-2">
-      NAME GOES HERE
+      Dungeons & Dragons
     </h1>
     <h2 class="text-3xl text-dnd-copper">OnChain Adventures</h2>
   </header>
