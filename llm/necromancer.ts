@@ -48,8 +48,9 @@ const GAME_LOGIC = `
 
   ### Creating a new Quest
   - When a new quest is to be started, ask the storyTellerAgent to generate a new quest description and scenario.
-  - Use the tool generateQuestMetadataTool to generate and save metadata for the quest.
-  - Save the quest description and scenario to the generated/quests folder with name <questid.json>.
+  - When a quest is created, called the createQuestTool to store it on chain.
+  
+  ### Starting a Quest
   - When a quest is to be started, call the startQuestTool to create a new quest.
   `;
 

@@ -136,9 +136,11 @@ export const createQuestTool = new DynamicStructuredTool({
     metadataUrl: z.string().describe("The URL of the quest metadata"),
   }),
   func: async ({  metadataUrl }) => {
-    assert(QUEST_ADDRESS)
-    assert(PRIVATE_KEY)
-    const questId = await createQuest(QUEST_ADDRESS, PRIVATE_KEY, metadataUrl);
+    const questAddress = process.env.QUEST_ADDRESS
+    const privateKey = process.env.PRIVATE_KEY
+    assert(questAddress, "QUEST_CONTRACT environment variable is not set");
+    assert(privateKey, "PRIVATE_KEY environment variable is not set");
+    const questId = await createQuest(questAddress, privateKey, metadataUrl);
     return `Quest created successfully: ${questId}`;
   },
 });
@@ -191,9 +193,12 @@ export const startQuestTool = new DynamicStructuredTool({
     questId: z.number().describe("The ID of the quest"),
   }),
   func: async ({ questId }) => {
-    assert(QUEST_ADDRESS, "QUEST_CONTRACT environment variable is not set");
-    assert(PRIVATE_KEY, "PRIVATE_KEY environment variable is not set");
-    await startQuest(QUEST_ADDRESS, PRIVATE_KEY, questId);
+console.log("Starting quest with ID:", questId);
+    const questAddress = process.env.QUEST_ADDRESS
+    const privateKey = process.env.PRIVATE_KEY
+    assert(questAddress, "QUEST_CONTRACT environment variable is not set");
+    assert(privateKey, "PRIVATE_KEY environment variable is not set");
+    await startQuest(questAddress, privateKey, questId);
     return "Quest started successfully";
   },
 });
