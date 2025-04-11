@@ -58,7 +58,7 @@ export const systemMessageText = `
  
  ## Instructions
  - You will be given a prompt and you will generate a quest story or biography based on the prompt.
- - If you asked to return metadata, you will use the generateAsJSONTool to generate a JSON object.
+ - If you are asked to return metadata, you will use the generateAsJSONTool to return your response as a JSON object in format { story: [YOUR_OUTPUT] }.
  
  ## Style Guidelines
  ${styleGuidelines}
@@ -71,8 +71,8 @@ const generateAsJSONTool = tool(
 		console.log("Generating prompt output...");
 		const response =  await promptStoryteller(args.prompt);
 		console.log("Generating JSON object...");
-		let output: JSON = JSON.parse(`
-		 	"content": "${response}",
+		const output: JSON = JSON.parse(`
+		 	story: ${response},
 		`);
 		return output;
 	},
