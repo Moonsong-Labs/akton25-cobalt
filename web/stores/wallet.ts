@@ -34,7 +34,8 @@ const QUEST_ADDRESS = import.meta.env["VITE_QUEST_ADDRESS"] || "";
 const TAVERN_ADDRESS = import.meta.env["VITE_TAVERN_ADDRESS"] || "";
 
 // Temporary test address with 3 heroes
-const TEST_ADDRESS = "0xb764428a29EAEbe8e2301F5924746F818b331F5A";
+// const TEST_ADDRESS = "0xb764428a29EAEbe8e2301F5924746F818b331F5A";
+const TEST_ADDRESS = null;
 
 if (!QUEST_ADDRESS || !TAVERN_ADDRESS) {
   throw new Error(
@@ -60,7 +61,8 @@ function createWalletStore() {
         if (window.ethereum) {
           const provider = new ethers.BrowserProvider(window.ethereum);
           const accounts = await provider.send("eth_requestAccounts", []);
-          const account = TEST_ADDRESS; // Using test address for now
+          console.log("accounts", accounts);
+          const account = TEST_ADDRESS || accounts[0];
 
           // Initialize contracts
           const questContract = new ethers.Contract(
@@ -77,19 +79,12 @@ function createWalletStore() {
           console.log("tavernContract", tavernContract);
           console.log("account", account);
 
-          let use_address = "";
-
-          // @ts-ignore
-          if (TEST_ADDRESS !== "") {
-            use_address = account;
-          }
-
           // Check hero balance
-          const heroCount = await tavernContract?.["balanceOf"]?.(TEST_ADDRESS);
+          const heroCount = await tavernContract?.["balanceOf"]?.(account);
           console.log("Hero count:", heroCount?.toString());
 
           // Load user's heroes
-          const userHeroes = await loadUserHeroes(tavernContract);
+          const userHeroes = await loadUserHeroes(tavernContract, account);
 
           set({
             isConnected: true,
@@ -142,19 +137,22 @@ function createWalletStore() {
   };
 }
 
-async function loadUserHeroes(tavernContract: Contract): Promise<Hero[]> {
+async function loadUserHeroes(
+  tavernContract: Contract,
+  account: string
+): Promise<Hero[]> {
   try {
     console.log("tavernContract", tavernContract);
     const heroes: Hero[] = [];
 
     // Get the total number of heroes for the address
-    const balance = await tavernContract?.["balanceOf"]?.(TEST_ADDRESS);
+    const balance = await tavernContract?.["balanceOf"]?.(account);
     const heroCount = Number(balance);
 
     // For each hero, get its token ID and information
     for (let i = 0; i < heroCount; i++) {
       const tokenId = await tavernContract?.["tokenOfOwnerByIndex"]?.(
-        TEST_ADDRESS,
+        account,
         i
       );
       const heroInfo = await tavernContract?.["heroInfo"]?.(tokenId);

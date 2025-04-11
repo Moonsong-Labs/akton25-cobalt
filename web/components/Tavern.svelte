@@ -33,9 +33,11 @@
     "https://gateway.fleek.co/ipfs/",
   ];
 
-  async function tryFetchMetadata(cid) {
+  async function tryFetchMetadata(ipfs_cid_url) {
     metadataStatus = "loading";
     let success = false;
+
+    const cid = ipfs_cid_url.split("/").pop();
 
     for (const gateway of ipfsGateways) {
       try {
@@ -228,6 +230,10 @@
                     </button>
                   </div>
                 </div>
+              </div>
+            {:else}
+              <div class="hero-profile">
+                <h2>Select a hero to view their profile</h2>
               </div>
             {/if}
           </div>
