@@ -295,12 +295,45 @@ function createQuestStore() {
 
       try {
         update((state) => ({ ...state, status: "pending", isLoading: true, currentQuestId: questId }));
-        addToEventLog(`Attempting to join Quest ${questId} (${questToJoin.name}) with Hero ${heroId} on-chain...`);
+        addToEventLog(`Checking status of Quest ${questId} (${questToJoin.name}) before joining with Hero ${heroId}...`);
 
         const walletState = get(wallet);
         if (!walletState.questContract || !walletState.account || !walletState.provider) {
           throw new Error("Wallet not connected or contract/provider not initialized");
         }
+
+        // *** ADDED: Check current quest status ***
+        const currentQuestStatus = await walletState.questContract.status(questId);
+        const QuestStatus_OPEN = 0; // Assuming 0 corresponds to OPEN enum in Solidity
+        const QuestStatus_IN_PROGRESS = 1; // Assuming 1 corresponds to IN_PROGRESS
+
+        if (currentQuestStatus !== QuestStatus_OPEN) {
+            // Quest is not open (likely already joined/in progress or finished)
+            if (currentQuestStatus === QuestStatus_IN_PROGRESS) {
+                 addToEventLog(`Quest ${questId} is already in progress. Loading current state...`);
+                 // TODO: Potentially fetch current round from contract if possible
+                 // For now, assume round 1 if we enter this state unexpectedly
+                 update((state) => ({
+                   ...state,
+                   status: "accepted",
+                   currentRound: 1, // Or fetch actual round
+                   maxRounds: questToJoin.maxRounds,
+                   roundDescriptions: questToJoin.roundDescriptions,
+                   allActions: questToJoin.allActions,
+                   showHistory: false,
+                   actionHistory: [],
+                   isLoading: false,
+                 }));
+                 return; // Exit function, no need to join again
+            } else {
+                 // Handle other statuses (e.g., FINISHED) if necessary
+                 throw new Error(`Quest ${questId} is not open for joining (current status: ${currentQuestStatus}).`);
+            }
+        }
+        // *** END ADDED CHECK ***
+
+        // Proceed with joining only if status is OPEN
+        addToEventLog(`Quest ${questId} is open. Attempting to join with Hero ${heroId} on-chain...`);
 
         const signer = await walletState.provider.getSigner();
         if (!signer) {
