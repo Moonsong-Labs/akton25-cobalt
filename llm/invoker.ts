@@ -14,13 +14,6 @@ const styleGuidelines = `
       - bribe: number
       - fight: number
       - sneak: number
-    - stats: object
-      - str: number
-      - dex: number
-      - will: number
-      - int: number
-      - cha: number
-      - con: number
   - The stage could be a battle with a monster, a puzzle or a negotiation.
   - Each stage should be harder than the previous one.
   - Names should describe the stage of the encounter. Examples:
@@ -32,7 +25,6 @@ const styleGuidelines = `
     - Resistances should be between -100% and 100%.
     - Resistances should be negative if the character has an advantage against the resistance type.
     - Resistances should be coherent with the stage difficulty and name. For example, a goblin horde should be resistant to sneak and fight, but not to persuade.
-  - Stats should be a number between 0 and 10 according to the difficulty and content of the stage.
 `;
 
 export const systemMessageText = `
