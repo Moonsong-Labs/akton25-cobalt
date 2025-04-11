@@ -202,7 +202,10 @@ function createQuestStore() {
             const basePath = window.location.origin;
             const questDetailsPromises = AVAILABLE_QUEST_IDS.map(async (id) => {
                 // Use absolute path from origin if needed, or relative if files are served correctly
-                const url = `${basePath}/generated/json/quest/quest_${id}.json`;
+                // const url = `${basePath}/generated/json/quest/quest_${id}.json`;
+                // *** CHANGED: Use relative path from web root ***
+                const url = `/generated/json/quest/quest_${id}.json`;
+                console.log("Attempting to fetch quest data from:", url); // Added for debugging
                 const response = await fetch(url);
                 if (!response.ok) {
                     throw new Error(`Failed to fetch ${url}: ${response.status} ${response.statusText}`);
@@ -224,6 +227,8 @@ function createQuestStore() {
         }
     }
 
+  // *** ADDED: Call loadAvailableQuests immediately on store creation ***
+  loadAvailableQuests();
 
   // Set up listeners and load quests when wallet connects/disconnects
   wallet.subscribe((state) => {

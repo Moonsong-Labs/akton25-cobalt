@@ -96,3 +96,11 @@ const necromancerAgent = createSupervisor({
 export const app = necromancerAgent.compile({
   checkpointer: new MemorySaver(),
 });
+
+
+
+
+const image =  await (await app.getGraphAsync()).drawMermaidPng()
+const arrayBuffer = await image.arrayBuffer()
+
+await Bun.write( Bun.file("mermaid.png"), arrayBuffer)
