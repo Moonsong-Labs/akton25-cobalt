@@ -6,7 +6,7 @@ import { dreamerAgent } from "./dreamer";
 import { gpt4omini, gpt4ominiLowTemp, llama31withTools } from "./models";
 import { recruiterAgent } from "./recruiter";
 import { storyTellerAgent } from "./storyteller";
-import { createQuestTool, displayImageTool, generateAndSaveHeroMetadataTool, generateHeroMetadataTool, recruitHeroTool, saveHeroLocallyTool, saveImageLocallyTool ,startQuestTool, uploadHeroTool, uploadImageTool } from "./tools";
+import { createQuestTool, generateAndSaveHeroMetadataTool, recruitHeroTool, saveImageLocallyTool, startQuestTool, uploadHeroTool, uploadImageTool } from "./tools";
 
 export const promptNecro = async (message: string) => {
   const response = await llama31withTools.invoke(message);
@@ -38,12 +38,11 @@ const GAME_LOGIC = `
   - Ensure the dreamer returns the image name when it makes you an image.
   - Upload character image to ipfs using uploadImageTool.
   - Use the uploadHeroTool to persist a character to ipfs.
-  - Save generated hero images locally with saveImageLocallyTool (no spaces allLowercase) 
-  - Save generated metadata locally with the  generateAndSaveHeroMetadataTool hero's name (nospaces allLowercase)
-  - Display the image using the displayImageTool using the local image path.
+  - Save generated hero images locally with saveImageLocallyTool  <heroname> (no spaces allLowercase)
+  - Save generated metadata locally with the  generateAndSaveHeroMetadataTool <heroname> (no spaces allLowercase)
   - **IMPORTANT** Mint character on chain by using the recruitHeroTool. Pass in the wallet address of the original user query to this tool. The cid should be a complete ifps url as the metadata uri parameter.
   - Return the character id to the user.
-  
+
   ### Creating a new Quest
   - When a new quest is to be started, ask the storyTellerAgent to generate a new quest description and scenario.
   - Use the tool generateQuestMetadataTool to generate and save metadata for the quest.
@@ -56,7 +55,7 @@ const necromancerAgent = createSupervisor({
   supervisorName: "Necromancer",
   agents: [storyTellerAgent, dreamerAgent, recruiterAgent],
   llm: gpt4ominiLowTemp,
-  tools: [uploadHeroTool, uploadImageTool, displayImageTool,createQuestTool,startQuestTool, recruitHeroTool , saveImageLocallyTool, generateAndSaveHeroMetadataTool],
+  tools: [uploadHeroTool, uploadImageTool,createQuestTool, startQuestTool, recruitHeroTool , saveImageLocallyTool, generateAndSaveHeroMetadataTool],
   prompt: GAME_LOGIC,
 });
 
