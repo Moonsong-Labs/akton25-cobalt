@@ -1,0 +1,42 @@
+{
+  "id": 0,
+  "name": "The Shadowed Crypt",
+  "description": "An ancient crypt rumoured to hold forgotten relics has been unearthed. Locals whisper of unsettling shadows and strange noises emanating from its depths.",
+  "maxRounds": 4,
+  "roundDescriptions": {
+    "1": "You push open the heavy stone door. A gust of stale air hits you. Torches flicker, revealing a descending staircase shrouded in cobwebs.",
+    "2": "A wide chamber opens before you, lined with sarcophagi. A faint chanting echoes from deeper within.",
+    "3": "You navigate a narrow passage. Glyphs on the walls seem to pulse with faint energy. A shadowy figure blocks the path ahead!",
+    "4": "The final resting place. A pedestal holds a gleaming artifact, but spectral guardians rise from the dust."
+  },
+  "allActions": [
+    {
+      "id": "fight_crypt_guardians",
+      "label": "Engage the Spectral Guardians",
+      "subtext": "(Fight)",
+      "function": "fightTask()",
+      "taskId": 1
+    },
+    {
+      "id": "sneak_past_figure",
+      "label": "Attempt to Sneak Past the Shadow",
+      "subtext": "(Sneak)",
+      "function": "sneakTask()",
+      "taskId": 4
+    },
+    {
+        "id": "persuade_chant",
+        "label": "Try to Disrupt the Chanting",
+        "subtext": "(Persuade)",
+        "function": "persuadeTask()",
+        "taskId": 3
+    },
+    {
+        "id": "bribe_passage",
+        "label": "Offer an Item for Safe Passage",
+        "subtext": "(Bribe - 0.01 ETH)",
+        "function": "bribeTask()",
+        "taskId": 2
+    }
+  ]
+}

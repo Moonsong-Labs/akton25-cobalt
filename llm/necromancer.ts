@@ -51,16 +51,16 @@ const GAME_LOGIC = `
   - Ensure the dreamer returns the image name when it makes you an image.
   - Upload character image to ipfs using uploadImageTool.
   - Use the uploadHeroTool to persist a character to ipfs.
-  - Display the image using the displayImageTool using the local image path.
-  - Save generated hero images locally with saveImageLocallyTool  <heroname> (no spaces allLowercase)
-  - Save generated metadata locally with the  generateAndSaveHeroMetadataTool <heroname> (no spaces allLowercase)
+  - Save generated hero images locally with saveImageLocallyTool  <heroname>
+  - Save generated metadata locally with the  generateAndSaveHeroMetadataTool <heroname>
   - **IMPORTANT** Mint character on chain by using the recruitHeroTool. Pass in the wallet address of the original user query to this tool. The cid should be a complete ifps url as the metadata uri parameter.
   - Return the character id to the user.
 
   ### Creating a new Quest
   - When a new quest is to be started, ask the storyTellerAgent to generate a new quest description and scenario.
-  - Use the tool generateQuestMetadataTool to generate and save metadata for the quest.
-  - Save the quest description and scenario to the generated/quests folder with name <questid.json>.
+  - When a quest is created, called the createQuestTool to store it on chain.
+  
+  ### Starting a Quest
   - When a quest is to be started, call the startQuestTool to create a new quest.
 
   ### Scenario generation
