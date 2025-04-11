@@ -20,13 +20,79 @@ const server = Bun.serve({
   port: 3001,
   routes: {
     "/create-quest":{
-      POST: async (req) => {
-        const body = await req.json();
-        // const { quest } = body;
+      POST: async () => {
+       try{
+        const jobId = uuidv4();
+        jobStore[jobId] = { status: "pending" };
 
-        // TODO: Create a quest
-        const questId = uuidv4();
-        return Response.json({ questId });
+        (async () => {
+          try {
+            const input = {
+              messages: [
+                {
+                  role: "user",
+                  content: "Create and deploy a brand new quest"
+                },
+              ],
+            };
+
+            const questId = uuidv4(); // Keep a unique ID for the quest thread itself
+            const config = { configurable: { thread_id: questId } };
+            const result = await app.invoke(input, config);
+
+            const lastMessage = result.messages[result.messages.length - 1];
+            console.log("lastMessage for job", jobId, ":", lastMessage);
+
+            jobStore[jobId] = { status: "completed", result: { questThreadId: questId, lastMessage } };
+            console.log(`Job ${jobId} (Create Quest) completed successfully.`);
+          } catch (error) {
+             console.error(`Job ${jobId} (Create Quest) failed:`, error);
+             jobStore[jobId] = {
+               status: "failed",
+               error: error instanceof Error ? error.message : String(error),
+             };
+          }
+        })();
+
+        return Response.json(
+           { jobId },
+           {
+             status: 202,
+             headers: corsHeaders,
+           }
+         );
+       }
+        catch(error){
+          console.error("Error initiating create quest job:", error);
+          return Response.json({ error: "Failed to initiate quest creation job" }, { status: 500, headers: corsHeaders });
+        }
+      },
+    },
+    
+    // resolve-task
+    // Get backend to read event pass as context
+    // Poke LLM to do the resolve task
+    // Parse event for data, use it to work out if pass or fail task
+
+    '/create-quest/status/:jobId': {
+       GET: (req) => {
+         const jobId = req.params.jobId;
+         const job = jobStore[jobId];
+
+         if (!job) {
+           return new Response("Job not found", {
+             status: 404,
+             headers: corsHeaders,
+           });
+         }
+
+         return Response.json(job, { headers: corsHeaders });
+       },
+     },
+
+    '/health': {
+      GET: () => {
+        return Response.json({ status: "ok" }, { headers: corsHeaders });
       },
     },
 
@@ -57,7 +123,6 @@ const server = Bun.serve({
             };
 
             console.log("input", input);
-            // Use a new thread ID for each invocation if necessary
             const config = { configurable: { thread_id: uuidv4() } };
 
             const result = await app.invoke(input, config);
@@ -65,8 +130,9 @@ const server = Bun.serve({
             const lastMessage = result.messages[result.messages.length - 1];
             assert(lastMessage?.content, "No last message");
 
-            // Store result on success
-            jobStore[jobId] = { status: "completed", result: "ok" };
+            const cleaned = await cleanResponse(lastMessage.content);
+
+            jobStore[jobId] = { status: "completed", result: JSON.stringify(cleaned) };
             console.log(`Job ${jobId} completed successfully.`);
           } catch (error) {
             console.error(`Job ${jobId} failed:`, error);
