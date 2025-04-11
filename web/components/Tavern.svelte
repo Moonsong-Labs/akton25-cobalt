@@ -1,15 +1,19 @@
 <script>
   import { createEventDispatcher } from "svelte";
   import { onMount } from "svelte";
+  import { wallet } from "../stores/wallet";
 
   export let showTavern;
-  export let userHeroes;
   export let mainHero = null;
   const dispatch = createEventDispatcher();
 
-  let selectedHero = userHeroes.length > 0 ? userHeroes[0] : null;
+  let selectedHero =
+    $wallet.userHeroes.length > 0 ? $wallet.userHeroes[0] : null;
 
   $: heroImage = selectedHero ? selectedHero.imagePath : null;
+  $: if ($wallet.userHeroes.length > 0 && !selectedHero) {
+    selectedHero = $wallet.userHeroes[0];
+  }
 
   function handleClickOutside(event) {
     if (event.target.classList.contains("backdrop")) {
@@ -51,7 +55,7 @@
       >
     </div>
     <div class="tavern-content">
-      {#if userHeroes.length === 0}
+      {#if $wallet.userHeroes.length === 0}
         <div class="empty-state">
           <h4>No Heroes Found</h4>
           <p>Your heroes will appear here once you have some.</p>
@@ -60,7 +64,7 @@
         <div class="heroes-container">
           <div class="heroes-list">
             <h4 class="text-xl text-coffee-medium mb-4">Your Heroes</h4>
-            {#each userHeroes as hero}
+            {#each $wallet.userHeroes as hero}
               <div
                 class="hero-list-item"
                 class:selected={selectedHero === hero}

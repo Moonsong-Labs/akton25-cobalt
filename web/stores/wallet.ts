@@ -64,6 +64,7 @@ function createWalletStore() {
   return {
     subscribe,
     connect: async (): Promise<boolean> => {
+      console.log("Connecting wallet...");
       try {
         if (window.ethereum) {
           const provider = new ethers.BrowserProvider(window.ethereum);
@@ -111,6 +112,7 @@ function createWalletStore() {
       }
     },
     disconnect: (): void => {
+      console.log("Disconnecting wallet...");
       set({
         isConnected: false,
         account: "",
@@ -123,16 +125,35 @@ function createWalletStore() {
     },
     refreshHeroes: async (): Promise<void> => {
       try {
-         const state = get(wallet);
-         if (state.isConnected && state.tavernContract && state.account) {
-             const userHeroes = await loadUserHeroes(state.tavernContract, state.account);
-             update((state) => ({
-               ...state,
-               userHeroes,
-               heroCount: userHeroes.length,
-             }));
-             console.log("Refreshed combined heroes:", userHeroes);
-         }
+        console.log("Refreshing heroes...");
+
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const accounts = await provider.send("eth_requestAccounts", []);
+        console.log("accounts", accounts);
+        const account = TEST_ADDRESS || accounts[0];
+
+        const tavernContract = new ethers.Contract(
+          TAVERN_ADDRESS,
+          Tavern.abi,
+          provider
+        );
+
+        console.log("tavernContract", tavernContract);
+        console.log("account", account);
+
+        // Load user's heroes using the combined approach
+        const userHeroes = await loadUserHeroes(tavernContract, account);
+        console.log("userHeroes after refreshing provider", userHeroes);
+        const state = get(wallet);
+        state.userHeroes = userHeroes;
+        state.heroCount = userHeroes.length;
+        // update(() => state);
+        update((state) => ({
+          ...state,
+          userHeroes,
+          heroCount: userHeroes.length,
+        }));
+        console.log("Refreshed combined heroes:", userHeroes);
       } catch (error) {
         console.error("Error refreshing combined heroes:", error);
       }
@@ -149,6 +170,7 @@ async function loadUserHeroes(
   try {
     console.log("Fetching hero balance from contract...");
     const balance = await tavernContract?.["balanceOf"]?.(account);
+    console.log("balance", balance);
     const heroCount = Number(balance);
     console.log(`Found ${heroCount} heroes on-chain.`);
 
@@ -157,7 +179,10 @@ async function loadUserHeroes(
     }
 
     for (let i = 0; i < heroCount; i++) {
-      const tokenId = await tavernContract?.["tokenOfOwnerByIndex"]?.(account, i);
+      const tokenId = await tavernContract?.["tokenOfOwnerByIndex"]?.(
+        account,
+        i
+      );
       console.log(`Fetching info for tokenId: ${tokenId}`);
       const heroInfo = await tavernContract?.["heroInfo"]?.(tokenId);
 
@@ -180,20 +205,26 @@ async function loadUserHeroes(
 
         if (metadataResponse.ok) {
           const localMetadata = await metadataResponse.json();
-          console.log(`Successfully fetched local metadata for ${contractHeroName}`);
+          console.log(
+            `Successfully fetched local metadata for ${contractHeroName}`
+          );
 
           // Use local data if available
           localName = localMetadata.name || localName;
           localDescription = localMetadata.description || localDescription;
           // Assume image exists if metadata exists - could add a check here if needed
           finalImagePath = imagePath;
-
         } else {
-          console.warn(`Local metadata not found or failed to fetch for ${contractHeroName} at ${metadataPath} (Status: ${metadataResponse.status}). Using contract name and default description.`);
+          console.warn(
+            `Local metadata not found or failed to fetch for ${contractHeroName} at ${metadataPath} (Status: ${metadataResponse.status}). Using contract name and default description.`
+          );
           // Keep defaults: contract name, default description, null image path
         }
       } catch (fetchError) {
-        console.error(`Error fetching or parsing local metadata for ${contractHeroName} at ${metadataPath}:`, fetchError);
+        console.error(
+          `Error fetching or parsing local metadata for ${contractHeroName} at ${metadataPath}:`,
+          fetchError
+        );
         // Keep defaults on error
       }
 
@@ -218,7 +249,6 @@ async function loadUserHeroes(
 
     console.log("Successfully loaded and combined heroes:", heroes);
     return heroes;
-
   } catch (error) {
     console.error("Error loading combined user heroes:", error);
     return []; // Return empty array on error

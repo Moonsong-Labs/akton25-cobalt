@@ -51,8 +51,10 @@
       if (data.status === "completed") {
         mintedHero = data.result;
         isMinting = false;
-        // Check balance after successful mint
-        await wallet.checkBalance();
+        // // Check balance after successful mint
+        // await wallet.checkBalance();
+        // Refresh the tavern's hero list
+        await wallet.refreshHeroes();
       } else if (data.status === "pending") {
         // Poll again after 2 seconds
         setTimeout(pollMintStatus, 2000);
@@ -89,8 +91,9 @@
   {#if mintedHero}
     <div class="minted-hero">
       <h3>Hero Minted!</h3>
-      <p>Name: {mintedHero.name}</p>
-      <p>ID: {mintedHero.id}</p>
+      <p>
+        You can now see your hero in the tavern and select it for your quest.
+      </p>
     </div>
   {/if}
 </div>

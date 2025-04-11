@@ -30,22 +30,26 @@
                   {availableQuest.description}
                 </p>
                 <div class="button-group-horizontal">
-                   <button
-                     class="quest-button small"
-                     on:click={() => quest.joinQuest(availableQuest.id)}
-                     disabled={$quest.isLoading}
-                   >
+                  <button
+                    class="quest-button small"
+                    on:click={() => quest.joinQuest(availableQuest.id)}
+                    disabled={$quest.isLoading}
+                  >
                     <span>Join (Offline)</span>
                     <span class="text-lg">⚔️</span>
                   </button>
-                   <button
-                     class="quest-button small"
-                     on:click={() => quest.joinQuestOnChain(availableQuest.id, mainHero.id)}
-                     disabled={$quest.isLoading || typeof mainHero.id !== 'number'}
-                     title={typeof mainHero.id !== 'number' ? 'Hero ID is missing' : 'Join quest on the blockchain'}
-                   >
+                  <button
+                    class="quest-button small"
+                    on:click={() =>
+                      quest.joinQuestOnChain(availableQuest.id, mainHero.id)}
+                    disabled={$quest.isLoading ||
+                      typeof mainHero.id !== "number"}
+                    title={typeof mainHero.id !== "number"
+                      ? "Hero ID is missing"
+                      : "Join quest on the blockchain"}
+                  >
                     <span>Join On-Chain</span>
-                     <span class="text-lg">🔗</span>
+                    <span class="text-lg">🔗</span>
                   </button>
                 </div>
               </div>
@@ -53,7 +57,8 @@
           </div>
         {:else}
           <p class="text-center text-dnd-copper">
-             {#if $quest.isLoading}Loading available quests...{:else}No quests currently available at the Adventurer's Guild.{/if}
+            {#if $quest.isLoading}Loading available quests...{:else}No quests
+              currently available at the Adventurer's Guild.{/if}
           </p>
         {/if}
       </div>
@@ -94,21 +99,22 @@
       {#if !$quest.showHistory}
         <div class="quest-progress">
           <div class="quest-header">
-             <h3 class="text-3xl font-medieval text-dnd-gold">
-                {$quest.availableQuestsDetails.find(q => q.id === $quest.currentQuestId)?.name || 'Ongoing Quest'} - Round {$quest.currentRound}
-             </h3>
-             <div class="round-indicator">
-                {#each Array($quest.maxRounds) as _, i}
+            <h3 class="text-3xl font-medieval text-dnd-gold">
+              {$quest.availableQuestsDetails.find(
+                (q) => q.id === $quest.currentQuestId
+              )?.name || "Ongoing Quest"} - Round {$quest.currentRound}
+            </h3>
+            <div class="round-indicator">
+              {#each Array($quest.maxRounds) as _, i}
                 <div
-                   class="round-dot {i + 1 === $quest.currentRound
-                   ? 'active'
-                   : ''} {i + 1 < $quest.currentRound ? 'completed' : ''}"
-                   title={`Round ${i + 1}${i + 1 < $quest.currentRound ? ' (Completed)' : ''}${i + 1 === $quest.currentRound ? ' (Active)' : ''}`}
-                 ></div>
-                {/each}
-             </div>
+                  class="round-dot {i + 1 === $quest.currentRound
+                    ? 'active'
+                    : ''} {i + 1 < $quest.currentRound ? 'completed' : ''}"
+                  title={`Round ${i + 1}${i + 1 < $quest.currentRound ? " (Completed)" : ""}${i + 1 === $quest.currentRound ? " (Active)" : ""}`}
+                ></div>
+              {/each}
+            </div>
           </div>
-
 
           <div class="round-content">
             <!-- <h3 class="text-3xl font-medieval text-dnd-gold mb-6">
@@ -153,49 +159,50 @@
                 {/if}
               </div>
               <div class="quest-hero-details">
-                 <div class="quest-hero-header">
-                   <span class="quest-hero-name">{mainHero.name}</span>
-                   <span class="quest-hero-level">Lv. {mainHero.level || 1}</span>
-                 </div>
-                 <div class="quest-hero-stats">
+                <div class="quest-hero-header">
+                  <span class="quest-hero-name">{mainHero.name}</span>
+                  <span class="quest-hero-level">Lv. {mainHero.level || 1}</span
+                  >
+                </div>
+                <div class="quest-hero-stats">
                   <div class="quest-stat" title="Strength">
                     <span class="quest-stat-icon">⚔️</span>
                     <span class="quest-stat-value"
                       >{mainHero.stats?.strength || "?"}</span
                     >
                   </div>
-                   <div class="quest-stat" title="Dexterity">
+                  <div class="quest-stat" title="Dexterity">
                     <span class="quest-stat-icon">🏹</span>
                     <span class="quest-stat-value"
                       >{mainHero.stats?.dexterity || "?"}</span
                     >
                   </div>
-                   <div class="quest-stat" title="Will Power">
+                  <div class="quest-stat" title="Will Power">
                     <span class="quest-stat-icon">✨</span>
                     <span class="quest-stat-value"
                       >{mainHero.stats?.willPower || "?"}</span
                     >
                   </div>
-                   <div class="quest-stat" title="Intelligence">
+                  <div class="quest-stat" title="Intelligence">
                     <span class="quest-stat-icon">🧠</span>
                     <span class="quest-stat-value"
                       >{mainHero.stats?.intelligence || "?"}</span
                     >
                   </div>
-                   <div class="quest-stat" title="Charisma">
+                  <div class="quest-stat" title="Charisma">
                     <span class="quest-stat-icon">👑</span>
                     <span class="quest-stat-value"
                       >{mainHero.stats?.charisma || "?"}</span
                     >
                   </div>
-                   <div class="quest-stat" title="Constitution">
+                  <div class="quest-stat" title="Constitution">
                     <span class="quest-stat-icon">🛡️</span>
                     <span class="quest-stat-value"
                       >{mainHero.stats?.constitution || "?"}</span
                     >
                   </div>
-                 </div>
-               </div>
+                </div>
+              </div>
             </div>
           {/if}
         </div>
@@ -205,27 +212,29 @@
 {:else}
   <QuestHistory
     actionHistory={$quest.actionHistory}
-    questName={$quest.availableQuestsDetails.find(q => q.id === $quest.currentQuestId)?.name || 'Completed Quest'}
+    questName={$quest.availableQuestsDetails.find(
+      (q) => q.id === $quest.currentQuestId
+    )?.name || "Completed Quest"}
     on:reset={quest.resetQuest}
   />
 {/if}
 
 <style>
-.available-quests {
+  .available-quests {
     background: rgba(139, 69, 19, 0.1);
     border: 1px solid rgba(212, 175, 55, 0.2);
     padding: 2rem;
     border-radius: 8px;
     margin-bottom: 2rem;
-}
+  }
 
-.quest-list {
+  .quest-list {
     display: grid;
     gap: 1.5rem;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-}
+  }
 
-.quest-card {
+  .quest-card {
     background: rgba(46, 34, 22, 0.7);
     border: 1px solid rgba(212, 175, 55, 0.3);
     padding: 1.5rem;
@@ -233,38 +242,37 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-}
+  }
 
-.button-group-horizontal {
+  .button-group-horizontal {
     display: flex;
     gap: 1rem;
     justify-content: center; /* Or flex-start / flex-end */
     margin-top: auto; /* Push buttons to bottom */
-}
+  }
 
-.quest-button.small {
+  .quest-button.small {
     padding: 0.6rem 1.2rem;
     font-size: 1rem;
-}
-.quest-button.small .text-lg {
+  }
+  .quest-button.small .text-lg {
     font-size: 1.1rem; /* Adjust icon size */
-}
+  }
 
-/* Quest Progress Enhancements */
-.quest-header {
+  /* Quest Progress Enhancements */
+  .quest-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
     border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-}
+  }
 
-.round-indicator {
+  .round-indicator {
     display: flex;
     align-items: center;
-}
-
+  }
 
   .round-dot {
     width: 12px;
@@ -279,7 +287,7 @@
   .round-dot.active {
     background-color: #d4af37; /* Gold */
     transform: scale(1.3); /* Slightly larger */
-     box-shadow: 0 0 8px #d4af37;
+    box-shadow: 0 0 8px #d4af37;
   }
 
   .round-dot.completed {
@@ -326,13 +334,17 @@
     display: inline-flex; /* Changed to inline-flex */
     align-items: center;
     gap: 0.75rem; /* Increased gap slightly */
-     text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
   }
 
   .quest-button:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(212, 175, 55, 0.4); /* Gold shadow */
-    background: linear-gradient(135deg, #a0522d 0%, #8b4513 100%); /* Lighter brown on hover */
+    background: linear-gradient(
+      135deg,
+      #a0522d 0%,
+      #8b4513 100%
+    ); /* Lighter brown on hover */
   }
 
   .quest-button:disabled {
@@ -341,10 +353,10 @@
     color: #aaa;
     cursor: not-allowed;
     opacity: 0.6;
-     text-shadow: none;
+    text-shadow: none;
   }
 
-.quest-hero-summary {
+  .quest-hero-summary {
     background: rgba(42, 26, 18, 0.8); /* Slightly darker background */
     padding: 1rem;
     border-radius: 8px; /* Slightly larger radius */
@@ -353,10 +365,10 @@
     display: flex;
     align-items: center;
     gap: 1.5rem; /* Increased gap */
-    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-}
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
 
-.quest-hero-image-container {
+  .quest-hero-image-container {
     width: 100px;
     height: 100px;
     flex-shrink: 0;
@@ -364,15 +376,15 @@
     border-radius: 50%; /* Circular image */
     overflow: hidden;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
+  }
 
-.quest-hero-image {
+  .quest-hero-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
-}
+  }
 
-.quest-hero-image-placeholder {
+  .quest-hero-image-placeholder {
     width: 100%;
     height: 100%;
     background: rgba(30, 15, 10, 0.7);
@@ -381,31 +393,31 @@
     justify-content: center;
     font-size: 2.5rem; /* Larger icon */
     color: rgba(255, 215, 0, 0.6);
-}
+  }
 
-.quest-hero-details {
+  .quest-hero-details {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-}
+  }
 
-.quest-hero-header {
+  .quest-hero-header {
     display: flex;
     justify-content: space-between;
     align-items: baseline; /* Align baseline for text */
     margin-bottom: 0.75rem; /* Increased margin */
     padding-bottom: 0.5rem;
     border-bottom: 1px solid rgba(255, 215, 0, 0.15);
-}
+  }
 
-.quest-hero-name {
+  .quest-hero-name {
     font-size: 1.4rem; /* Larger name */
     color: #ffd700;
     font-family: "MedievalSharp", cursive;
-     font-weight: bold;
-}
+    font-weight: bold;
+  }
 
-.quest-hero-level {
+  .quest-hero-level {
     font-size: 0.9rem;
     color: #1c140d; /* Dark brown text */
     background: #ffd700; /* Gold background */
@@ -413,17 +425,17 @@
     border-radius: 10px; /* Pill shape */
     font-weight: bold;
     font-family: "Cinzel", serif;
-}
+  }
 
-.quest-hero-stats {
+  .quest-hero-stats {
     display: flex;
     flex-wrap: wrap; /* Allow wrapping on smaller screens */
     justify-content: flex-start; /* Start align stats */
     gap: 0.75rem; /* Gap between stats */
     margin-top: 0.5rem;
-}
+  }
 
-.quest-stat {
+  .quest-stat {
     display: flex;
     align-items: center;
     gap: 0.4rem; /* Increased gap */
@@ -433,20 +445,19 @@
     border: 1px solid rgba(255, 215, 0, 0.1);
     min-width: 60px; /* Ensure some minimum width */
     justify-content: center;
-}
+  }
 
-.quest-stat-icon {
+  .quest-stat-icon {
     font-size: 1.1rem; /* Slightly larger icon */
-}
+  }
 
-.quest-stat-value {
+  .quest-stat-value {
     color: #fff;
     font-size: 1rem;
     font-weight: 600;
-     min-width: 1.5ch; /* Ensure space for 2 digits */
-     text-align: center;
-}
-
+    min-width: 1.5ch; /* Ensure space for 2 digits */
+    text-align: center;
+  }
 
   .button-group {
     display: flex;
@@ -458,26 +469,33 @@
   }
 
   .round-content {
-      padding: 1rem 0;
+    padding: 1rem 0;
   }
 
   .round-description {
-      min-height: 3em; /* Ensure space for text */
-       background: rgba(0,0,0,0.1);
-       padding: 1rem;
-       border-radius: 4px;
-       border-left: 3px solid rgba(212, 175, 55, 0.4);
+    min-height: 3em; /* Ensure space for text */
+    background: rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    border-radius: 4px;
+    border-left: 3px solid rgba(212, 175, 55, 0.4);
   }
 
   .action-buttons {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid */
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(250px, 1fr)
+    ); /* Responsive grid */
     gap: 1rem;
     margin-top: 1.5rem;
   }
 
   .action-button {
-    background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%); /* Darker base */
+    background: linear-gradient(
+      135deg,
+      #2a2a2a 0%,
+      #1a1a1a 100%
+    ); /* Darker base */
     border: 1px solid #888;
     border-radius: 6px;
     padding: 1rem;
@@ -520,10 +538,9 @@
     color: #aaa;
     display: block;
   }
-    .action-button:hover:not(:disabled) .action-subtext {
-        color: #d4af37; /* Gold subtext on hover */
-    }
-
+  .action-button:hover:not(:disabled) .action-subtext {
+    color: #d4af37; /* Gold subtext on hover */
+  }
 
   .button-spinner {
     position: absolute;
@@ -537,6 +554,4 @@
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
   }
-
-
 </style>

@@ -120,6 +120,7 @@
 
   .quest-log-messages {
     display: flex;
+    height: 50vh;
     flex-direction: column;
     gap: 0.75rem;
     padding: 0.5rem;
