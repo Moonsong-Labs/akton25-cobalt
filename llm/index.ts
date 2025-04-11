@@ -71,6 +71,7 @@ async function main() {
         },
         config
       );
+      
       console.log(
         resp.messages.map((msg) => ({ content: msg.content, name: msg.name }))
       );
