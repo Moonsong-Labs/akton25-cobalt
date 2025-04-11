@@ -14,6 +14,7 @@ import {
   startQuestTool,
   uploadHeroTool,
   uploadImageTool,
+  uploadStageTool,
 } from "./tools";
 import { invokerAgent } from "./invoker";
 
@@ -82,6 +83,7 @@ const necromancerAgent = createSupervisor({
   tools: [
     uploadHeroTool,
     uploadImageTool,
+    uploadStageTool,
     createQuestTool,
     startQuestTool,
     recruitHeroTool,
