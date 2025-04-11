@@ -1,8 +1,8 @@
 <script>
   export let mainHero = null;
   import { createEventDispatcher } from "svelte";
-  import MintHero from "./MintHero.svelte";
   import { quest } from "../stores/quest";
+  import MintHero from "./MintHero.svelte";
   const dispatch = createEventDispatcher();
 
   function openTavern() {

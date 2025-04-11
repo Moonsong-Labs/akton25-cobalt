@@ -1,0 +1,14 @@
+- [x] Create `generated/json` and `generated/images` directories if they don't exist.
+- [x] Implement `saveJsonLocally` function in a new `llm/tools/localStore.ts` file.
+- [x] Implement `saveImageLocally` function in `llm/tools/localStore.ts`.
+- [x] Create `saveHeroLocallyTool` in `llm/tools/localStore.ts`.
+- [x] Create `saveImageLocallyTool` in `llm/tools/localStore.ts`.
+- [x] Update `llm/necromancer.ts`:
+    - [x] Import new tools.
+    - [x] Add new tools to the agent's tool list.
+    - [x] Modify `GAME_LOGIC` prompt to use new tools, include local image path in JSON, remove `recruitHeroTool` call, and return local JSON path.
+- [x] Update `backend/server.ts`:
+    - [x] Modify `/mint` endpoint's background job to extract and store the local JSON path.
+    - [x] Remove `cleanResponse` call from `/mint` logic if agent now handles final JSON creation.
+    - [x] Add static file serving for the `./generated` directory.
+- [ ] Review and test the entire flow. 
