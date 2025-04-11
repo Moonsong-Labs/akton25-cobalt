@@ -19,6 +19,17 @@ const corsHeaders = {
 const server = Bun.serve({
   port: 3001,
   routes: {
+    "/create-quest":{
+      POST: async (req) => {
+        const body = await req.json();
+        // const { quest } = body;
+
+        // TODO: Create a quest
+        const questId = uuidv4();
+        return Response.json({ questId });
+      },
+    },
+
     "/mint": {
       GET: async (req) => {
         const url = new URL(req.url);
