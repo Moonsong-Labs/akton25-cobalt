@@ -8,6 +8,46 @@
   function openTavern() {
     dispatch("openTavern");
   }
+
+  // Add helper functions for stats
+  function getStatIcon(stat) {
+    switch (stat) {
+      case "strength":
+        return "⚔️";
+      case "dexterity":
+        return "🏹";
+      case "willPower":
+        return "✨";
+      case "intelligence":
+        return "🧠";
+      case "charisma":
+        return "👑";
+      case "constitution":
+        return "🛡️";
+      default:
+        return "?";
+    }
+  }
+
+  function getStatTitle(stat) {
+    switch (stat) {
+      case "strength":
+        return "Strength: The might of arms and physical power";
+      case "dexterity":
+        return "Dexterity: Agility, reflexes, and balance";
+      case "willPower":
+        return "Will Power: Mental fortitude and magical resistance";
+      case "intelligence":
+        return "Intelligence: Reasoning, memory, and arcane knowledge";
+      case "charisma":
+        return "Charisma: Force of personality and social influence";
+      case "constitution":
+        return "Constitution: Health, stamina, and vital force";
+      default:
+        return "Unknown Stat";
+    }
+  }
+  // End helper functions
 </script>
 
 <div class="hero-selection">
@@ -24,61 +64,43 @@
         others are still too drunk to stand!
       </p>
       <div class="button-group">
-        <button class="tavern-button" on:click={openTavern}>
-          <span>Visit the Tavern</span>
-          <span class="text-2xl">🏰</span>
-        </button>
         <MintHero />
       </div>
     </div>
   {:else if $quest.status === "not_joined"}
-    <div class="selected-hero-info">
-      <div class="hero-header">
-        <h2 class="hero-name">{mainHero.name}</h2>
+    <div class="selected-hero-summary">
+      <div class="hero-image-frame">
+        <div class="hero-image-container">
+          {#if mainHero.imagePath}
+            <img
+              src={mainHero.imagePath}
+              alt={mainHero.name}
+              class="hero-image"
+              onerror="this.onerror=null; this.src='https://placehold.co/150x150/2e2216/ffd700?text=Hero';"
+            />
+          {:else}
+            <div class="hero-image-placeholder">
+              <span>⚔️</span>
+            </div>
+          {/if}
+        </div>
+      </div>
+      <div class="hero-details">
+        <h3 class="hero-name">{mainHero.name}</h3>
         <span class="hero-level">Level {mainHero.level}</span>
-      </div>
-
-      <p class="hero-status-message">
-        Your best hero in town (or at least the one who's had the least ale) is
-        has answered the call to arms!
-      </p>
-
-      <div class="hero-stats">
-        <div class="stat-grid">
-          <div class="stat-item" title="Strength">
-            <span class="stat-icon">⚔️</span>
-            <span class="stat-value">{mainHero.stats.strength}</span>
-          </div>
-          <div class="stat-item" title="Dexterity">
-            <span class="stat-icon">🏹</span>
-            <span class="stat-value">{mainHero.stats.dexterity}</span>
-          </div>
-          <div class="stat-item" title="Will Power">
-            <span class="stat-icon">✨</span>
-            <span class="stat-value">{mainHero.stats.willPower}</span>
-          </div>
-          <div class="stat-item" title="Intelligence">
-            <span class="stat-icon">🧠</span>
-            <span class="stat-value">{mainHero.stats.intelligence}</span>
-          </div>
-          <div class="stat-item" title="Charisma">
-            <span class="stat-icon">👑</span>
-            <span class="stat-value">{mainHero.stats.charisma}</span>
-          </div>
-          <div class="stat-item" title="Constitution">
-            <span class="stat-icon">🛡️</span>
-            <span class="stat-value">{mainHero.stats.constitution}</span>
-          </div>
+        <div class="hero-stats-grid">
+          {#each Object.entries(mainHero.stats) as [stat, value], i}
+            <div class="stat-item" title={getStatTitle(stat)}>
+              <span class="stat-icon">{getStatIcon(stat)}</span>
+              <span class="stat-value">{value}</span>
+            </div>
+          {/each}
         </div>
       </div>
-
-      <div class="hero-status">
-        <p class="ready-message">You are ready to go on an adventure!</p>
-        <div class="cooldown">
-          <span class="cooldown-label">Cooldown:</span>
-          <span class="cooldown-value">{mainHero.cooldown}</span>
-        </div>
-      </div>
+    </div>
+    <div class="ready-section">
+      <p class="ready-message">You are ready to go on an adventure!</p>
+      <p class="cooldown-message">Cooldown: {mainHero.cooldown}</p>
     </div>
   {:else}
     <div class="quest-in-progress">
@@ -147,43 +169,53 @@
     background: linear-gradient(135deg, #654321 0%, #8b4513 100%);
   }
 
-  .selected-hero-info {
+  .selected-hero-summary {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
     color: #d4af37;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 215, 0, 0.1);
   }
 
-  .hero-header {
+  .hero-details {
+    flex-grow: 1;
     text-align: center;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid rgba(255, 215, 0, 0.2);
   }
 
   .hero-name {
     font-size: 2rem;
     color: #ffd700;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
     display: block;
+    font-family: "MedievalSharp", cursive;
   }
 
   .hero-level {
-    font-size: 1.2rem;
-    color: #000;
-    background: #ffd700;
-    padding: 0.25rem 0.75rem;
-    border-radius: 4px;
+    font-size: 1.1rem;
+    color: #d4af37;
+    margin-bottom: 1.5rem;
+    display: block;
   }
 
-  .stat-grid {
+  .hero-stats-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    grid-template-columns: repeat(
+      3,
+      minmax(80px, 1fr)
+    );
+    gap: 0.75rem;
+    max-width: 350px;
+    margin: 0 auto;
   }
 
   .stat-item {
     background: #2a1a12;
-    padding: 1rem;
-    border-radius: 8px;
+    padding: 0.75rem;
+    border-radius: 6px;
     text-align: center;
     border: 1px solid rgba(255, 215, 0, 0.1);
     transition: all 0.3s ease;
@@ -192,44 +224,39 @@
   .stat-item:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 215, 0, 0.3);
   }
 
   .stat-icon {
     display: block;
-    font-size: 1.5rem;
-    margin-bottom: 0.5rem;
+    font-size: 1.3rem;
+    margin-bottom: 0.25rem;
   }
 
   .stat-value {
     display: block;
     color: #fff;
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: 600;
   }
 
-  .hero-status {
+  .ready-section {
     text-align: center;
-    padding-top: 1rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
     border-top: 1px solid rgba(255, 215, 0, 0.2);
   }
 
   .ready-message {
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     color: #ffd700;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
+    font-family: "MedievalSharp", cursive;
   }
 
-  .cooldown {
+  .cooldown-message {
     color: #d4af37;
-  }
-
-  .cooldown-label {
-    margin-right: 0.5rem;
-  }
-
-  .cooldown-value {
-    font-weight: 500;
-    color: #fff;
+    font-size: 1rem;
   }
 
   .button-group {
@@ -238,6 +265,7 @@
     gap: 1rem;
     align-items: center;
     margin-top: 2rem;
+    margin-bottom: 1.5rem;
   }
 
   .quest-in-progress {
@@ -257,5 +285,43 @@
     margin-bottom: 1rem;
     font-size: 1.1rem;
     line-height: 1.6;
+  }
+
+  .hero-image-frame {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .hero-image-container {
+    width: 220px;
+    height: 220px;
+    border: 4px solid #a0522d;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow:
+      0 0 10px rgba(0, 0, 0, 0.5),
+      inset 0 0 8px rgba(255, 215, 0, 0.3);
+    background: radial-gradient(ellipse at center, #4a2a1a 0%, #2e1a0f 100%);
+    padding: 5px;
+  }
+
+  .hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  .hero-image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: rgba(30, 15, 10, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: rgba(255, 215, 0, 0.5);
+    border-radius: 8px;
   }
 </style>
