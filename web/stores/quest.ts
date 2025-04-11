@@ -1,7 +1,7 @@
 import { writable, get } from "svelte/store";
 import { wallet } from "./wallet";
 import { ethers } from "ethers";
-import type { QuestContract } from "$lib/types/ethereum";
+import type { QuestContract, TavernContract } from "$lib/types/ethereum";
 
 interface Action {
   id: string;
@@ -89,6 +89,80 @@ function createQuestStore() {
     ],
   });
 
+  // Function to add events to the log
+  function addToEventLog(message: string): void {
+    update((state) => {
+      const newLog = [...state.eventLog, { message, timestamp: new Date() }];
+      return {
+        ...state,
+        eventLog: newLog.length > 50 ? newLog.slice(-50) : newLog,
+      };
+    });
+  }
+
+  // Function to set up event listeners
+  function setupEventListeners() {
+    const state = get(wallet);
+    if (!state.questContract || !state.tavernContract) return;
+
+    // Quest Contract Events
+    const questContract = state.questContract as QuestContract;
+    questContract.on("HeroEnrolled", (questId: number, heroId: number) => {
+      addToEventLog(`Hero ${heroId} joined quest ${questId}`);
+    });
+
+    questContract.on(
+      "QuestStatusUpdated",
+      (questId: number, status: number) => {
+        const statusText = status === 2 ? "completed" : "failed";
+        addToEventLog(`Quest ${questId} ${statusText}`);
+      }
+    );
+
+    questContract.on(
+      "TaskPerformed",
+      (questId: number, heroId: number, task: number) => {
+        const tasks = ["Romance", "Fight", "Bribe", "Persuade", "Sneak"];
+        addToEventLog(
+          `Hero ${heroId} performed ${tasks[task]} task in quest ${questId}`
+        );
+      }
+    );
+
+    // Tavern Contract Events
+    const tavernContract = state.tavernContract as TavernContract;
+    tavernContract.on(
+      "Transfer",
+      (from: string, to: string, tokenId: number) => {
+        if (from === "0x0000000000000000000000000000000000000000") {
+          addToEventLog(`New hero ${tokenId} minted to ${to}`);
+        }
+      }
+    );
+  }
+
+  // Function to remove event listeners
+  function removeEventListeners() {
+    const state = get(wallet);
+    if (!state.questContract || !state.tavernContract) return;
+
+    const questContract = state.questContract as QuestContract;
+    const tavernContract = state.tavernContract as TavernContract;
+
+    // Remove all listeners
+    questContract.removeAllListeners();
+    tavernContract.removeAllListeners();
+  }
+
+  // Set up listeners when wallet connects
+  wallet.subscribe((state) => {
+    if (state.isConnected) {
+      setupEventListeners();
+    } else {
+      removeEventListeners();
+    }
+  });
+
   return {
     subscribe,
     joinQuest: async (): Promise<void> => {
@@ -150,11 +224,11 @@ function createQuestStore() {
         }));
 
         // Add to event log
-        quest.addToEventLog("Successfully joined quest on-chain!");
+        addToEventLog("Successfully joined quest on-chain!");
       } catch (error) {
         console.error("Error joining quest on-chain:", error);
         update((state) => ({ ...state, status: "rejected", isLoading: false }));
-        quest.addToEventLog(
+        addToEventLog(
           "Failed to join quest on-chain: " + (error as Error).message
         );
       }
@@ -204,15 +278,6 @@ function createQuestStore() {
       } catch (error) {
         console.error("Error checking quests:", error);
       }
-    },
-    addToEventLog: (message: string): void => {
-      update((state) => {
-        const newLog = [...state.eventLog, { message, timestamp: new Date() }];
-        return {
-          ...state,
-          eventLog: newLog.length > 50 ? newLog.slice(-50) : newLog,
-        };
-      });
     },
     resetQuest: (): void => {
       set({
@@ -276,6 +341,7 @@ function createQuestStore() {
         actionHistory: [],
       }));
     },
+    addToEventLog,
   };
 }
 
