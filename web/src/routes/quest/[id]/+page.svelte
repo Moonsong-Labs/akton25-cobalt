@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import QuestHistory from '../../../components/QuestHistory.svelte';
   // Revert to relative paths
   import { quest } from '../../../stores/quest';
   import { wallet } from '../../../stores/wallet';
   import type { Hero } from '../../../stores/wallet';
-  import QuestHistory from '../../../components/QuestHistory.svelte';
 
   // Remove temporary page declaration
   // declare const page: any;

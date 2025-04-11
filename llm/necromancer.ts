@@ -3,6 +3,7 @@ import { MemorySaver } from "@langchain/langgraph";
 import { createSupervisor } from "@langchain/langgraph-supervisor";
 import { z } from "zod";
 import { dreamerAgent } from "./dreamer";
+import { invokerAgent } from "./invoker";
 import { gpt4omini, gpt4ominiLowTemp, llama31withTools } from "./models";
 import { recruiterAgent } from "./recruiter";
 import { storyTellerAgent } from "./storyteller";
@@ -16,7 +17,6 @@ import {
   uploadImageTool,
   uploadStageTool,
 } from "./tools";
-import { invokerAgent } from "./invoker";
 
 export const promptNecro = async (message: string) => {
   const response = await llama31withTools.invoke(message);
@@ -54,7 +54,7 @@ const GAME_LOGIC = `
   - Save generated hero images locally with saveImageLocallyTool  <heroname>
   - Save generated metadata locally with the  generateAndSaveHeroMetadataTool <heroname>
   - **IMPORTANT** Mint character on chain by using the recruitHeroTool. Pass in the wallet address of the original user query to this tool. The cid should be a complete ifps url as the metadata uri parameter.
-  - Return the character id to the user.
+  - Return the character name to the user.
 
   ### Creating a new Quest
   - When a new quest is to be started, ask the storyTellerAgent to generate a new quest description and scenario.

@@ -373,20 +373,27 @@ export const recruitHeroTool = new DynamicStructuredTool({
     }),
   }),
   func: async ({  master, name, uri, stats }) => {
-    console.log("Recruiting hero...")
-    const tavernAddress = process.env.TAVERN_ADDRESS
-    const private_key = process.env.ROOT_PRIVATE_KEY
-    assert(tavernAddress)
-    assert(private_key)
-    const heroId = await recruitHero(
-      tavernAddress,
-      private_key,
-      master,
-      name,
-      uri,
-      stats,
-    );
-    return `Hero recruited successfully: ${heroId}`;
+    try{
+      console.log("Recruiting hero...")
+      const tavernAddress = process.env.TAVERN_ADDRESS
+      const private_key = process.env.ROOT_PRIVATE_KEY
+      assert(tavernAddress)
+      assert(private_key)
+       await recruitHero(
+        tavernAddress,
+        private_key,
+        master,
+        name,
+        uri,
+        stats,
+      );
+      return `Hero recruited successfully: ${name}`;
+    }
+    catch(error){
+      console.error("Error recruiting hero:", error);
+      console.error("halt the flow, ERROR")
+      throw error;
+    }
   },
 });
 

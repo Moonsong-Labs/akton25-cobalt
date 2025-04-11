@@ -61,7 +61,6 @@
         isMinting = false;
       }
     } catch (err) {
-      error = "Failed to check minting status";
       isMinting = false;
       console.error(err);
     }
@@ -90,7 +89,6 @@
     <div class="minted-hero">
       <h3>Hero Minted!</h3>
       <p>Name: {mintedHero.name}</p>
-      <p>ID: {mintedHero.id}</p>
     </div>
   {/if}
 </div>
