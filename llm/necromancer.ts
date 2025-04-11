@@ -6,7 +6,17 @@ import { dreamerAgent } from "./dreamer";
 import { gpt4omini, gpt4ominiLowTemp, llama31withTools } from "./models";
 import { recruiterAgent } from "./recruiter";
 import { storyTellerAgent } from "./storyteller";
-import { createQuestTool, generateAndSaveHeroMetadataTool, recruitHeroTool, saveImageLocallyTool, startQuestTool, uploadHeroTool, uploadImageTool } from "./tools";
+import {
+  createQuestTool,
+  generateAndSaveHeroMetadataTool,
+  recruitHeroTool,
+  saveImageLocallyTool,
+  startQuestTool,
+  uploadHeroTool,
+  uploadImageTool,
+  uploadStageTool,
+} from "./tools";
+import { invokerAgent } from "./invoker";
 
 export const promptNecro = async (message: string) => {
   const response = await llama31withTools.invoke(message);
@@ -41,6 +51,7 @@ const GAME_LOGIC = `
   - Ensure the dreamer returns the image name when it makes you an image.
   - Upload character image to ipfs using uploadImageTool.
   - Use the uploadHeroTool to persist a character to ipfs.
+  - Display the image using the displayImageTool using the local image path.
   - Save generated hero images locally with saveImageLocallyTool  <heroname> (no spaces allLowercase)
   - Save generated metadata locally with the  generateAndSaveHeroMetadataTool <heroname> (no spaces allLowercase)
   - **IMPORTANT** Mint character on chain by using the recruitHeroTool. Pass in the wallet address of the original user query to this tool. The cid should be a complete ifps url as the metadata uri parameter.
@@ -51,14 +62,34 @@ const GAME_LOGIC = `
   - Use the tool generateQuestMetadataTool to generate and save metadata for the quest.
   - Save the quest description and scenario to the generated/quests folder with name <questid.json>.
   - When a quest is to be started, call the startQuestTool to create a new quest.
+
+  ### Scenario generation
+  - When needing to create a new scenario, ask the storyteller to create a scenario name and description.
+  - Ask the invoker to create 3 stages for the scenario with increasing difficulty.
+  - Invoker will return only one stage at a time. You will need to ask the invoker for the next stage until all 3 are created.
+  - For each stage, ask the storyteller to create a stage description and add it to the stage metadata.
+  - For each stage, ask the dreamer to create an image of the stage and upload it to ipfs with uploadImageTool. Add the image name to the stage metadata.
+  - Each stage only requires a single image, identifiedably by their image name.
+  - Ensure the dreamer returns the image name when it makes you an image.
+  - Use the uploadStageTool to persist a stage to ipfs.
+  - Display the image using the displayImageTool using the local image path.
   `;
 
 const necromancerAgent = createSupervisor({
   includeAgentName: "inline",
   supervisorName: "Necromancer",
-  agents: [storyTellerAgent, dreamerAgent, recruiterAgent],
+  agents: [storyTellerAgent, dreamerAgent, recruiterAgent, invokerAgent],
   llm: gpt4ominiLowTemp,
-  tools: [uploadHeroTool, uploadImageTool,createQuestTool, startQuestTool, recruitHeroTool , saveImageLocallyTool, generateAndSaveHeroMetadataTool],
+  tools: [
+    uploadHeroTool,
+    uploadImageTool,
+    uploadStageTool,
+    createQuestTool,
+    startQuestTool,
+    recruitHeroTool,
+    saveImageLocallyTool,
+    generateAndSaveHeroMetadataTool,
+  ],
   prompt: GAME_LOGIC,
 });
 
