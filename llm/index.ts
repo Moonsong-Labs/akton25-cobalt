@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import { promptDreamer } from "./dreamer";
 import { app, promptNecro } from "./necromancer";
 import { promptStoryteller } from "./storyteller";
+import { promptInvoker } from "./invoker";
 
 export type AGENTS =
   | "necromancer"
@@ -68,11 +69,11 @@ async function main() {
         {
           messages: [{ role: "user", content: prompt }],
         },
-        config,
+        config
       );
       
       console.log(
-        resp.messages.map((msg) => ({ content: msg.content, name: msg.name })),
+        resp.messages.map((msg) => ({ content: msg.content, name: msg.name }))
       );
       break;
     }
@@ -100,9 +101,10 @@ async function main() {
       break;
     }
     case "invoker": {
+      const resp = await promptInvoker(prompt);
+      console.log(resp);
       break;
     }
-
     default:
       throw new Error("Invalid Choice!");
   }

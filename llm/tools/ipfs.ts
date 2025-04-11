@@ -115,6 +115,31 @@ export async function upload_image_to_ipfs(
   }
 }
 
+export const stageMetadata = z.object({
+  name: z.string(),
+  description: z.string(),
+  image: z.string().describe("The ipfs url of the stage"),
+  hp: z.number().min(1).max(100),
+  resistances: z
+    .object({
+      romance: z.number().min(-100).max(100),
+      persuade: z.number().min(-100).max(100),
+      bribe: z.number().min(-100).max(100),
+      fight: z.number().min(-100).max(100),
+      sneak: z.number().min(-100).max(100),
+    })
+    .describe("Resistances are percentages between -100% and 100%."),
+});
+
+export const uploadStageTool = new DynamicStructuredTool({
+  name: "uploadStage",
+  description: "Upload a Stage to IPFS using Pinata",
+  schema: stageMetadata,
+  func: async ({ name, description, image, hp, resistances }) => {
+    return upload_json_to_ipfs(name, { description, image, hp, resistances });
+  },
+});
+
 export const uploadImageTool = new DynamicStructuredTool({
   name: "uploadImage",
   description: "Upload an image to IPFS using Pinata",
