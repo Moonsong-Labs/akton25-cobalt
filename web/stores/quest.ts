@@ -1,4 +1,7 @@
-import { writable } from "svelte/store";
+import { writable, get } from "svelte/store";
+import { wallet } from "./wallet";
+import { ethers } from "ethers";
+import type { QuestContract } from "$lib/types/ethereum";
 
 interface Action {
   id: string;
@@ -105,6 +108,55 @@ function createQuestStore() {
       } catch (error) {
         console.error("Error joining quest:", error);
         update((state) => ({ ...state, status: "rejected", isLoading: false }));
+      }
+    },
+    joinQuestOnChain: async (): Promise<void> => {
+      try {
+        update((state) => ({ ...state, status: "pending", isLoading: true }));
+
+        const state = get(wallet);
+        if (!state.questContract || !state.account) {
+          throw new Error("Wallet not connected or contract not initialized");
+        }
+
+        // Get the signer from the provider
+        const signer = await state.provider?.getSigner();
+        if (!signer) {
+          throw new Error("No signer available");
+        }
+
+        // Connect the contract with the signer
+        const contractWithSigner = state.questContract.connect(
+          signer
+        ) as QuestContract;
+
+        // my ids
+        // id: "019622c6-2245-771a-b457-ab1faf090f4c",
+        // user_id: "d98668a6-d0c7-4e6d-a473-8881a2991519",
+
+        // Call the joinQuest function on the smart contract
+        const questId = 0;
+        const heroId = 4;
+        const tx = await contractWithSigner.joinQuest(questId, heroId); // TODO: Replace with actual questId and heroId
+        await tx.wait(); // Wait for the transaction to be mined
+
+        update((state) => ({
+          ...state,
+          status: "accepted",
+          currentRound: 1,
+          showHistory: false,
+          actionHistory: [],
+          isLoading: false,
+        }));
+
+        // Add to event log
+        quest.addToEventLog("Successfully joined quest on-chain!");
+      } catch (error) {
+        console.error("Error joining quest on-chain:", error);
+        update((state) => ({ ...state, status: "rejected", isLoading: false }));
+        quest.addToEventLog(
+          "Failed to join quest on-chain: " + (error as Error).message
+        );
       }
     },
     performAction: async (action: Action): Promise<void> => {

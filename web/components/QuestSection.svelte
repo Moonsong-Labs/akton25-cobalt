@@ -20,10 +20,16 @@
       </div>
     {:else if $quest.status === "not_joined"}
       <div class="text-center">
-        <button class="quest-button" on:click={quest.joinQuest}>
-          <span>Join the Quest</span>
-          <span class="text-2xl">⚔️ </span>
-        </button>
+        <div class="button-group">
+          <button class="quest-button" on:click={quest.joinQuest}>
+            <span>Join the Quest (offline, to show user flow) </span>
+            <span class="text-1xl">⚔️ </span>
+          </button>
+          <button class="quest-button" on:click={quest.joinQuestOnChain}>
+            <span>Join the Quest On-Chain</span>
+            <span class="text-2xl">🔗 </span>
+          </button>
+        </div>
       </div>
     {:else if $quest.status === "pending"}
       <div class="quest-status">
@@ -257,5 +263,14 @@
     color: #fff;
     font-size: 1rem;
     font-weight: 600;
+  }
+
+  .button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    margin: 0 auto;
+    max-width: 300px;
   }
 </style>
