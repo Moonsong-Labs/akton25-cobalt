@@ -58,16 +58,17 @@ const GAME_LOGIC = `
   - Return the character id to the user.
 
   ### Creating a new Quest
-  - When a new quest is to be started, ask the storyTellerAgent to generate a new quest description and scenario ${instructionsTask} as instructions.
-  - Use the tool generateQuestMetadataTool to generate and save metadata for the quest.
-  - Save the quest description and scenario to the generated/quests folder with name <questid.json>.
+  - When a new quest is to be started, ask the storyTellerAgent to generate a new quest description and scenario using ${instructionsTask} as instructions.
+  - When a quest is created, called the createQuestTool to store it on chain.
+  
+  ### Starting a Quest
   - When a quest is to be started, call the startQuestTool to create a new quest.
 
   ### Scenario generation
   - When needing to create a new scenario, ask the storyteller to create a scenario name and description using ${instructionsStart} as instructions.
   - Ask the invoker to create 3 stages for the scenario with increasing difficulty.
   - Invoker will return only one stage at a time. You will need to ask the invoker for the next stage until all 3 are created.
-  - For each stage, ask the storyteller to create a stage description and add it to the stage metadata and as instructions.
+  - For each stage, ask the storyteller to create a stage description and add it to the stage metadata.
   - For each stage, ask the dreamer to create an image of the stage and upload it to ipfs with uploadImageTool. Add the image name to the stage metadata.
   - Each stage only requires a single image, identifiedably by their image name.
   - Ensure the dreamer returns the image name when it makes you an image.

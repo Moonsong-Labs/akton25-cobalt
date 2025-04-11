@@ -1,0 +1,34 @@
+{
+  "id": 1,
+  "name": "The Alchemist's Request",
+  "description": "A reclusive alchemist needs rare ingredients found only in the treacherous Whispering Woods. He promises a potent reward for your troubles.",
+  "maxRounds": 3,
+  "roundDescriptions": {
+    "1": "You enter the Whispering Woods. Sunlight struggles to pierce the dense canopy. Strange plants twist around ancient trees.",
+    "2": "A territorial beast guards the patch of Moonpetal Flowers the alchemist requires. It doesn't look friendly.",
+    "3": "With the ingredients secured, you must navigate back through the woods as dusk falls and unseen things stir in the shadows."
+  },
+  "allActions": [
+    {
+        "id": "fight_beast",
+        "label": "Fight the Territorial Beast",
+        "subtext": "(Fight)",
+        "function": "fightTask()",
+        "taskId": 1
+      },
+      {
+        "id": "sneak_ingredients",
+        "label": "Try to Sneakily Gather Ingredients",
+        "subtext": "(Sneak)",
+        "function": "sneakTask()",
+        "taskId": 4
+      },
+      {
+        "id": "romance_dryad",
+        "label": "Charm a Local Dryad for Help",
+        "subtext": "(Romance)",
+        "function": "romanceTask()",
+        "taskId": 0
+      }
+  ]
+}
