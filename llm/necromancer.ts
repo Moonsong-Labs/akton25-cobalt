@@ -41,8 +41,8 @@ const GAME_LOGIC = `
   - Ensure the dreamer returns the image name when it makes you an image.
   - Upload character image to ipfs using uploadImageTool.
   - Use the uploadHeroTool to persist a character to ipfs.
-  - Save generated hero images locally with saveImageLocallyTool  <heroname> (no spaces allLowercase)
-  - Save generated metadata locally with the  generateAndSaveHeroMetadataTool <heroname> (no spaces allLowercase)
+  - Save generated hero images locally with saveImageLocallyTool  <heroname>
+  - Save generated metadata locally with the  generateAndSaveHeroMetadataTool <heroname>
   - **IMPORTANT** Mint character on chain by using the recruitHeroTool. Pass in the wallet address of the original user query to this tool. The cid should be a complete ifps url as the metadata uri parameter.
   - Return the character id to the user.
 

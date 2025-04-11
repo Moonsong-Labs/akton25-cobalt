@@ -95,6 +95,12 @@ const server = Bun.serve({
         return Response.json({ status: "ok" }, { headers: corsHeaders });
       },
     },
+    
+    "/story-text":{
+      
+      // take input
+      // give text output
+    },
 
     "/mint": {
       GET: async (req) => {

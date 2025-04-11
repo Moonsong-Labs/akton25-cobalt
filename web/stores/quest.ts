@@ -48,7 +48,7 @@ interface QuestState {
 }
 
 // Added constant for available quests
-const AVAILABLE_QUEST_IDS = [0]; // TODO: Add more quest IDs (e.g., [0, 1]) when their JSON files exist
+const AVAILABLE_QUEST_IDS = [0, 1]; // TODO: Add more quest IDs (e.g., [0, 1]) when their JSON files exist
 
 function createQuestStore() {
   // Moved initial descriptions/actions to constants for reset
