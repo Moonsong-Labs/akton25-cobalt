@@ -1,10 +1,26 @@
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { gpt4omini } from "./models";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
+import { z } from "zod";
+
+// TODO: Add schema to the tool
+const stageSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+  hp: z.number().min(1).max(100),
+  resistances: z
+    .object({
+      romance: z.number().min(-100).max(100),
+      persuade: z.number().min(-100).max(100),
+      bribe: z.number().min(-100).max(100),
+      fight: z.number().min(-100).max(100),
+      sneak: z.number().min(-100).max(100),
+    })
+    .describe("Resistances are percentages between -100% and 100%."),
+});
 
 const styleGuidelines = `
-  - Output should be a JSON with three stages. Each stage should have the following fields:
-    - stage: number
+  - Output should be a JSON with a stage:
     - name: string
     - description: string
     - hp: number
@@ -15,7 +31,6 @@ const styleGuidelines = `
       - fight: number
       - sneak: number
   - The stage could be a battle with a monster, a puzzle or a negotiation.
-  - Each stage should be harder than the previous one.
   - Names should describe the stage of the encounter. Examples:
     - Battle: "Goblin Horde"
     - Puzzle: "Door without a knob"
@@ -32,8 +47,7 @@ export const systemMessageText = `
   You are an invoker.
  
   ## Instructions
-  You will be given a scenario description and you will generate three consecutive stages in that scenario.
-  The stages should be coherent with the scenario description and the style guidelines.
+  You will be given a stage difficulty and you will generate a stage description, name, hp and resistances.
   
   ## Style Guidelines
   ${styleGuidelines}`;
@@ -41,10 +55,7 @@ export const systemMessageText = `
 const systemMessage = new SystemMessage(systemMessageText);
 
 export const promptInvoker = async (input: string) => {
-  const scenarioDescription = input;
-  const humanMessage = new HumanMessage(
-    `The scenario description is: ${scenarioDescription}`
-  );
+  const humanMessage = new HumanMessage(`The stage difficulty is: ${input}`);
   const { content } = await gpt4omini.invoke([systemMessage, humanMessage]);
   return content;
 };
