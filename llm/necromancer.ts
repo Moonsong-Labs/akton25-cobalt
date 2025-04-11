@@ -29,6 +29,9 @@ const GAME_LOGIC = `
   You delegate tasks to them and use their tools effectively.
 
   ## Instructions
+  
+  ### Global Rules
+  - WHenever there is an error related to a missing environment variable or AssertionError, stop all execution and report the fault.
 
   ### Character generation
   - When needing to create a new hero, ask the recruiter agent to generate you some random stats and name for a hero.

@@ -3,20 +3,23 @@ import { get, writable } from "svelte/store";
 import Quest from "../../contracts/out/Quest.sol/Quest.json";
 import Tavern from "../../contracts/out/Tavern.sol/Tavern.json";
 
+interface HeroStats {
+  strength: number;
+  dexterity: number;
+  willPower: number;
+  intelligence: number;
+  charisma: number;
+  constitution: number;
+}
+
 interface Hero {
   id: number;
   name: string;
   level: number;
-  metadataUrl: string;
+  imagePath: string | null;
+  description: string;
   cooldown: number;
-  stats: {
-    strength: number;
-    dexterity: number;
-    willPower: number;
-    intelligence: number;
-    charisma: number;
-    constitution: number;
-  };
+  stats: HeroStats;
 }
 
 interface WalletState {
@@ -42,6 +45,10 @@ if (!QUEST_ADDRESS || !TAVERN_ADDRESS) {
     "Missing required environment variables: VITE_QUEST_ADDRESS and/or VITE_TAVERN_ADDRESS"
   );
 }
+
+// Base path for generated assets - use web-relative paths now
+const JSON_DIR_PATH = "/generated/json";
+const IMAGE_DIR_PATH = "/generated/images";
 
 function createWalletStore() {
   const { subscribe, set, update } = writable<WalletState>({
@@ -79,12 +86,9 @@ function createWalletStore() {
           console.log("tavernContract", tavernContract);
           console.log("account", account);
 
-          // Check hero balance
-          const heroCount = await tavernContract?.["balanceOf"]?.(account);
-          console.log("Hero count:", heroCount?.toString());
-
-          // Load user's heroes
+          // Load user's heroes using the combined approach
           const userHeroes = await loadUserHeroes(tavernContract, account);
+          console.log("Loaded combined heroes:", userHeroes);
 
           set({
             isConnected: true,
@@ -93,7 +97,7 @@ function createWalletStore() {
             questContract,
             tavernContract,
             userHeroes,
-            heroCount: Number(heroCount),
+            heroCount: userHeroes.length,
           });
 
           return true;
@@ -117,53 +121,89 @@ function createWalletStore() {
         heroCount: 0,
       });
     },
-    checkBalance: async (): Promise<void> => {
+    refreshHeroes: async (): Promise<void> => {
       try {
-        const state = get(wallet);
-        if (state.tavernContract && state.account) {
-          const balance = await state.tavernContract?.["balanceOf"]?.(
-            state.account
-          );
-          update((state) => ({
-            ...state,
-            heroCount: Number(balance),
-          }));
-          console.log("Updated hero count:", Number(balance));
-        }
+         const state = get(wallet);
+         if (state.isConnected && state.tavernContract && state.account) {
+             const userHeroes = await loadUserHeroes(state.tavernContract, state.account);
+             update((state) => ({
+               ...state,
+               userHeroes,
+               heroCount: userHeroes.length,
+             }));
+             console.log("Refreshed combined heroes:", userHeroes);
+         }
       } catch (error) {
-        console.error("Error checking balance:", error);
+        console.error("Error refreshing combined heroes:", error);
       }
     },
   };
 }
 
+// Rewrite loadUserHeroes to fetch on-chain data and merge with local metadata
 async function loadUserHeroes(
   tavernContract: Contract,
   account: string
 ): Promise<Hero[]> {
+  const heroes: Hero[] = [];
   try {
-    console.log("tavernContract", tavernContract);
-    const heroes: Hero[] = [];
-
-    // Get the total number of heroes for the address
+    console.log("Fetching hero balance from contract...");
     const balance = await tavernContract?.["balanceOf"]?.(account);
     const heroCount = Number(balance);
+    console.log(`Found ${heroCount} heroes on-chain.`);
 
-    // For each hero, get its token ID and information
+    if (heroCount === 0) {
+      return [];
+    }
+
     for (let i = 0; i < heroCount; i++) {
-      const tokenId = await tavernContract?.["tokenOfOwnerByIndex"]?.(
-        account,
-        i
-      );
+      const tokenId = await tavernContract?.["tokenOfOwnerByIndex"]?.(account, i);
+      console.log(`Fetching info for tokenId: ${tokenId}`);
       const heroInfo = await tavernContract?.["heroInfo"]?.(tokenId);
 
-      // console.log("heroInfo", heroInfo);
+      if (!heroInfo || !heroInfo.name) {
+        console.warn(`Could not fetch heroInfo or name for tokenId ${tokenId}`);
+        continue;
+      }
 
+      const contractHeroName = heroInfo.name;
+      const metadataPath = `${JSON_DIR_PATH}/${contractHeroName}.json`;
+      const imagePath = `${IMAGE_DIR_PATH}/${contractHeroName}.png`;
+
+      let localName = contractHeroName; // Default to contract name
+      let localDescription = "No description found."; // Default description
+      let finalImagePath: string | null = null; // Default to null
+
+      try {
+        console.log(`Attempting to fetch local metadata: ${metadataPath}`);
+        const metadataResponse = await fetch(metadataPath);
+
+        if (metadataResponse.ok) {
+          const localMetadata = await metadataResponse.json();
+          console.log(`Successfully fetched local metadata for ${contractHeroName}`);
+
+          // Use local data if available
+          localName = localMetadata.name || localName;
+          localDescription = localMetadata.description || localDescription;
+          // Assume image exists if metadata exists - could add a check here if needed
+          finalImagePath = imagePath;
+
+        } else {
+          console.warn(`Local metadata not found or failed to fetch for ${contractHeroName} at ${metadataPath} (Status: ${metadataResponse.status}). Using contract name and default description.`);
+          // Keep defaults: contract name, default description, null image path
+        }
+      } catch (fetchError) {
+        console.error(`Error fetching or parsing local metadata for ${contractHeroName} at ${metadataPath}:`, fetchError);
+        // Keep defaults on error
+      }
+
+      // Combine on-chain and local/fallback data
       heroes.push({
         id: Number(tokenId),
-        name: heroInfo.name,
+        name: localName,
         level: Number(heroInfo.level),
-        metadataUrl: heroInfo.metadataUrl,
+        description: localDescription,
+        imagePath: finalImagePath,
         cooldown: Number(heroInfo.cooldown),
         stats: {
           strength: Number(heroInfo.stats.strength),
@@ -174,14 +214,14 @@ async function loadUserHeroes(
           constitution: Number(heroInfo.stats.constitution),
         },
       });
-
-      console.log("heroes", heroes);
     }
 
+    console.log("Successfully loaded and combined heroes:", heroes);
     return heroes;
+
   } catch (error) {
-    console.error("Error loading heroes:", error);
-    return [];
+    console.error("Error loading combined user heroes:", error);
+    return []; // Return empty array on error
   }
 }
 

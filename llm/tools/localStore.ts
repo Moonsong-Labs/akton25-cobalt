@@ -1,22 +1,28 @@
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
-import { join, parse } from "node:path";
+import { join, parse, relative } from "node:path";
 import { DynamicStructuredTool } from "@langchain/core/tools";
 import { z } from "zod";
 import { heroSchema } from "../schemas";
 
-const GENERATED_DIR = "generated";
-const JSON_DIR = join(GENERATED_DIR, "json");
-const IMAGE_DIR = join(GENERATED_DIR, "images");
+const PUBLIC_DIR = join("web", "public");
+const JSON_DIR = join(PUBLIC_DIR, "generated", "json");
+const IMAGE_DIR = join(PUBLIC_DIR, "generated", "images");
 
 // Ensure directories exist
-if (!existsSync(GENERATED_DIR)) {
-  mkdirSync(GENERATED_DIR);
+if (!existsSync(PUBLIC_DIR)) {
+  // This might fail if web/public doesn't exist, 
+  // consider if web/public should be pre-existing or created.
+  // For now, assume web/ exists and try to create public if needed.
+  try { mkdirSync(PUBLIC_DIR); } catch (e) { /* ignore if it exists */ }
+}
+if (!existsSync(join(PUBLIC_DIR, "generated"))) {
+   try { mkdirSync(join(PUBLIC_DIR, "generated")); } catch (e) { /* ignore */ }
 }
 if (!existsSync(JSON_DIR)) {
-  mkdirSync(JSON_DIR);
+  try { mkdirSync(JSON_DIR, { recursive: true }); } catch (e) { /* ignore */ }
 }
 if (!existsSync(IMAGE_DIR)) {
-  mkdirSync(IMAGE_DIR);
+  try { mkdirSync(IMAGE_DIR, { recursive: true }); } catch (e) { /* ignore */ }
 }
 
 /**
@@ -29,11 +35,15 @@ export async function saveJsonLocally(
   name: string,
   content: object
 ): Promise<string> {
-  const filePath = join(JSON_DIR, `${name}.json`);
+  // Ensure name doesn't have path characters
+  const safeName = parse(name).name;
+  const filePath = join(JSON_DIR, `${safeName}.json`);
   try {
     writeFileSync(filePath, JSON.stringify(content, null, 2));
     console.log(`JSON saved locally to: ${filePath}`);
-    return filePath; // Return relative path
+    // Return path relative to PUBLIC_DIR for web access
+    const relativePath = relative(PUBLIC_DIR, filePath);
+    return `/${relativePath.replace(/\\/g, '/')}`; // Ensure forward slashes for web path
   } catch (error) {
     console.error("Error saving JSON locally:", error);
     throw error;
@@ -41,22 +51,30 @@ export async function saveJsonLocally(
 }
 
 /**
- * Saves an image file to a local directory in the generated/images directory.
+ * Saves an image file to a local directory in the web/public/images directory.
  * @param sourceImagePath - The path to the source image file.
  * @param targetImageName - The desired name for the saved image file (e.g., "hero_avatar.png").
- * @returns The relative path to the saved image file (e.g., "generated/images/hero_avatar.png").
+ * @returns The relative path to the saved image file (e.g., "/images/hero_avatar.png").
  */
 export async function saveImageLocally(
   sourceImagePath: string,
   targetImageName: string
 ): Promise<string> {
-  const targetPath = join(IMAGE_DIR, targetImageName);
+  // Ensure targetImageName is just a filename
+  const safeTargetName = parse(targetImageName).base;
+  const targetPath = join(IMAGE_DIR, safeTargetName);
+
+  // Ensure .png extension
+  const finalTargetPath = targetPath.endsWith(".png") ? targetPath : `${targetPath}.png`;
+
   try {
     const bunFile = Bun.file(sourceImagePath);
     const arrayBuffer = await bunFile.arrayBuffer();
-    writeFileSync(targetPath, Buffer.from(arrayBuffer));
-    console.log(`Image saved locally to: ${targetPath}`);
-    return targetPath; // Return relative path
+    writeFileSync(finalTargetPath, Buffer.from(arrayBuffer));
+    console.log(`Image saved locally to: ${finalTargetPath}`);
+    // Return path relative to PUBLIC_DIR for web access
+    const relativePath = relative(PUBLIC_DIR, finalTargetPath);
+    return `/${relativePath.replace(/\\/g, '/')}`; // Ensure forward slashes for web path
   } catch (error) {
     console.error("Error saving image locally:", error);
     throw error;
@@ -108,9 +126,8 @@ export const generateAndSaveHeroMetadataTool = new DynamicStructuredTool({
       description: heroDescription,
     };
     console.log(metadata)
-    const filePath= `generated/json/${heroName}.json`
-    
-    Bun.write(filePath, JSON.stringify(metadata));
-    return `Saved locally to ${filePath}`
+    // Use saveJsonLocally to handle path construction and relative path return
+    const webPath = await saveJsonLocally(heroName, metadata);
+    return `Saved locally to ${webPath}`;
   },
 });
