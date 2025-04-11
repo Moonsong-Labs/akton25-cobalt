@@ -113,5 +113,10 @@
     on:close={() => (showTavern = false)}
     on:setMainHero={handleSetMainHero}
   />
-  <Footer isConnected={$wallet.isConnected} {handleNavClick} />
+  <Footer
+    isConnected={$wallet.isConnected}
+    {handleNavClick}
+    eventLog={$quest.eventLog}
+    {showQuestLog}
+  />
 </div>
