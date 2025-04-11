@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.27;
 
-import {Ownable} from "@openzeppelin-contracts/access/Ownable.sol";
-import {Tavern} from "./Tavern.sol";
-import {EnumerableSet} from "@openzeppelin-contracts/utils/structs/EnumerableSet.sol";
+import { Ownable } from "@openzeppelin-contracts/access/Ownable.sol";
+import { Tavern } from "./Tavern.sol";
+import { EnumerableSet } from "@openzeppelin-contracts/utils/structs/EnumerableSet.sol";
 
 contract Quest is Ownable {
     uint8 public constant MAX_HEROES = 1;
@@ -95,7 +95,10 @@ contract Quest is Ownable {
         return questId;
     }
 
-    function joinQuest(uint256 questId, uint256 heroId)
+    function joinQuest(
+        uint256 questId,
+        uint256 heroId
+    )
         external
         onlyHeroMaster(heroId)
         when(questId, QuestStatus.OPEN)
@@ -112,7 +115,11 @@ contract Quest is Ownable {
         emit QuestStatusUpdated(questId, QuestStatus.IN_PROGRESS);
     }
 
-    function performTask(uint256 questId, uint256 heroId, Task task)
+    function performTask(
+        uint256 questId,
+        uint256 heroId,
+        Task task
+    )
         external
         onlyHeroMaster(heroId)
         onlyEnrolledHero(questId, heroId)
@@ -121,14 +128,19 @@ contract Quest is Ownable {
         emit TaskPerformed(questId, heroId, task);
     }
 
-    function resolveTask(uint256 questId, uint256 heroId, Outcome taskOutcome, string calldata metadataUrl)
+    function resolveTask(
+        uint256 questId,
+        uint256 heroId,
+        Outcome taskOutcome,
+        string calldata metadataUrl
+    )
         external
         onlyOwner
         onlyEnrolledHero(questId, heroId)
         when(questId, QuestStatus.IN_PROGRESS)
     {
         QuestDetails storage quest = _quests[questId];
-        quest.progress.push(Round({heroId: heroId, outcome: taskOutcome}));
+        quest.progress.push(Round({ heroId: heroId, outcome: taskOutcome }));
         quest.metadataUrl = metadataUrl;
 
         if (_quests[questId].progress.length == MAX_TASKS) {
