@@ -1,24 +1,9 @@
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { gpt4omini } from "./models";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
-import { z } from "zod";
+import { MemorySaver } from "@langchain/langgraph";
 
-// TODO: Add schema to the tool
-const stageSchema = z.object({
-  name: z.string(),
-  description: z.string(),
-  hp: z.number().min(1).max(100),
-  resistances: z
-    .object({
-      romance: z.number().min(-100).max(100),
-      persuade: z.number().min(-100).max(100),
-      bribe: z.number().min(-100).max(100),
-      fight: z.number().min(-100).max(100),
-      sneak: z.number().min(-100).max(100),
-    })
-    .describe("Resistances are percentages between -100% and 100%."),
-});
-
+// TODO: Add zod schema to the guidelines
 const styleGuidelines = `
   - Output should be a JSON with a stage:
     - name: string
@@ -47,7 +32,9 @@ export const systemMessageText = `
   You are an invoker.
  
   ## Instructions
-  You will be given a stage difficulty and you will generate a stage description, name, hp and resistances.
+  You will be given a scenario description and difficulty and you will generate a stage hp and resistances.
+  - The stage should be coherent with the scenario description and difficulty.
+  - Each stage should be different from the others.
   
   ## Style Guidelines
   ${styleGuidelines}`;
@@ -55,7 +42,9 @@ export const systemMessageText = `
 const systemMessage = new SystemMessage(systemMessageText);
 
 export const promptInvoker = async (input: string) => {
-  const humanMessage = new HumanMessage(`The stage difficulty is: ${input}`);
+  const humanMessage = new HumanMessage(
+    `The stage name, description and difficulty is: ${input}`
+  );
   const { content } = await gpt4omini.invoke([systemMessage, humanMessage]);
   return content;
 };
@@ -65,4 +54,5 @@ export const invokerAgent = createReactAgent({
   tools: [],
   prompt: systemMessageText,
   name: "Invoker",
+  checkpointer: new MemorySaver(),
 });

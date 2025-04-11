@@ -4,11 +4,17 @@ import { dreamerAgent } from "./dreamer";
 import { gpt4omini, llama31withTools } from "./models";
 import { recruiterAgent } from "./recruiter";
 import { storyTellerAgent } from "./storyteller";
-import { displayImageTool, uploadHeroTool, uploadImageTool } from "./tools";
+import {
+  displayImageTool,
+  uploadHeroTool,
+  uploadImageTool,
+  uploadStageTool,
+} from "./tools";
+import { invokerAgent } from "./invoker";
 
 export const promptNecro = async (message: string) => {
-	const response = await llama31withTools.invoke(message);
-	return response;
+  const response = await llama31withTools.invoke(message);
+  return response;
 };
 
 const GAME_LOGIC = `
@@ -27,15 +33,28 @@ const GAME_LOGIC = `
   - Upload character image to ipfs using uploadImageTool.
   - Use the uploadHeroTool to persist a character to ipfs.
   - Display the image using the displayImageTool using the local image path.
+
+  ### Scenario generation
+  - When needing to create a new scenario, ask the storyteller to create a scenario name and description.
+  - Ask the invoker to create 3 stages for the scenario with increasing difficulty.
+  - Invoker will return only one stage at a time. You will need to ask the invoker for the next stage until all 3 are created.
+  - For each stage, ask the storyteller to create a stage description and add it to the stage metadata.
+  - For each stage, ask the dreamer to create an image of the stage and upload it to ipfs with uploadImageTool. Add the image name to the stage metadata.
+  - Each stage only requires a single image, identifiedably by their image name.
+  - Ensure the dreamer returns the image name when it makes you an image.
+  - Use the uploadStageTool to persist a stage to ipfs.
+  - Display the image using the displayImageTool using the local image path.
   `;
 
 const necromancerAgent = createSupervisor({
   includeAgentName: "inline",
   supervisorName: "Necromancer",
-	agents: [storyTellerAgent, dreamerAgent, recruiterAgent],
-	llm: gpt4omini,
-	tools: [uploadHeroTool, uploadImageTool, displayImageTool],
-	prompt: GAME_LOGIC,
+  agents: [storyTellerAgent, dreamerAgent, recruiterAgent, invokerAgent],
+  llm: gpt4omini,
+  tools: [uploadHeroTool, uploadImageTool, displayImageTool, uploadStageTool],
+  prompt: GAME_LOGIC,
 });
 
-export const app = necromancerAgent.compile({ checkpointer: new MemorySaver() });
+export const app = necromancerAgent.compile({
+  checkpointer: new MemorySaver(),
+});
