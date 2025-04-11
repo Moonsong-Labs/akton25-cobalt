@@ -2,9 +2,9 @@
 // Compatible with OpenZeppelin Contracts ^5.0.0
 pragma solidity ^0.8.27;
 
-import { ERC721 } from "@openzeppelin-contracts/token/ERC721/ERC721.sol";
-import { ERC721Enumerable } from "@openzeppelin-contracts/token/ERC721/extensions/ERC721Enumerable.sol";
-import { Ownable } from "@openzeppelin-contracts/access/Ownable.sol";
+import {ERC721} from "@openzeppelin-contracts/token/ERC721/ERC721.sol";
+import {ERC721Enumerable} from "@openzeppelin-contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import {Ownable} from "@openzeppelin-contracts/access/Ownable.sol";
 
 contract Tavern is ERC721, ERC721Enumerable, Ownable {
     // Hero stats:
@@ -37,7 +37,7 @@ contract Tavern is ERC721, ERC721Enumerable, Ownable {
                                 PUBLIC FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(address initialOwner) ERC721("Hero", "HERO") Ownable(initialOwner) { }
+    constructor(address initialOwner) ERC721("Hero", "HERO") Ownable(initialOwner) {}
 
     // One time setter for the quest contract.
     function setQuest(address quest) external onlyOwner {
@@ -50,12 +50,7 @@ contract Tavern is ERC721, ERC721Enumerable, Ownable {
         _;
     }
 
-    function recruit(
-        address master,
-        string calldata name,
-        string calldata uri,
-        Stats calldata initialStats
-    )
+    function recruit(address master, string calldata name, string calldata uri, Stats calldata initialStats)
         external
         onlyOwner
         returns (uint256)
@@ -63,7 +58,7 @@ contract Tavern is ERC721, ERC721Enumerable, Ownable {
         uint256 heroId = _nextHeroId++;
         _safeMint(master, heroId);
 
-        _heroes[heroId] = Hero({ name: name, level: 1, metadataUrl: uri, cooldown: 0, stats: initialStats });
+        _heroes[heroId] = Hero({name: name, level: 1, metadataUrl: uri, cooldown: 0, stats: initialStats});
 
         return heroId;
     }
@@ -92,11 +87,7 @@ contract Tavern is ERC721, ERC721Enumerable, Ownable {
                                INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _update(
-        address to,
-        uint256 heroId,
-        address auth
-    )
+    function _update(address to, uint256 heroId, address auth)
         internal
         override(ERC721, ERC721Enumerable)
         returns (address)

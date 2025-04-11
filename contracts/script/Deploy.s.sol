@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.27;
 
-import { Script } from "forge-std/Script.sol";
-import { console2 } from "forge-std/console2.sol";
-import { Tavern } from "../src/Tavern.sol";
-import { Quest } from "../src/Quest.sol";
+import {Script} from "forge-std/Script.sol";
+import {console2} from "forge-std/console2.sol";
+import {Tavern} from "../src/Tavern.sol";
+import {Quest} from "../src/Quest.sol";
 
 contract DeployScript is Script {
-    function setUp() public { }
+    function setUp() public {}
 
     function run() public {
         // Get the private key from the environment variable
