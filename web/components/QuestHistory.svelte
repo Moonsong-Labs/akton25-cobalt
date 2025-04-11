@@ -1,8 +1,6 @@
 <script>
   import { quest } from "../stores/quest";
   export let actionHistory;
-  export let currentRound;
-  export let showHistory;
 
   function handleReset() {
     quest.resetQuest();

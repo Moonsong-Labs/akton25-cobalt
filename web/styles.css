@@ -125,7 +125,7 @@
 
   .heroes-list,
   .available-quests {
-    @apply bg-black/30 p-6 rounded-lg border border-[#b87333];
+    @apply bg-black/30 p-6 rounded-lg;
   }
 
   .hero-card {

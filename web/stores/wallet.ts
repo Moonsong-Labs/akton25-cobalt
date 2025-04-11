@@ -7,6 +7,16 @@ interface Hero {
   id: number;
   name: string;
   level: number;
+  metadataUrl: string;
+  cooldown: number;
+  stats: {
+    strength: number;
+    dexterity: number;
+    willPower: number;
+    intelligence: number;
+    charisma: number;
+    constitution: number;
+  };
 }
 
 interface WalletState {
@@ -22,6 +32,9 @@ interface WalletState {
 // Contract addresses from environment variables
 const QUEST_ADDRESS = import.meta.env["VITE_QUEST_ADDRESS"] || "";
 const TAVERN_ADDRESS = import.meta.env["VITE_TAVERN_ADDRESS"] || "";
+
+// Temporary test address with 3 heroes
+const TEST_ADDRESS = "0xb764428a29EAEbe8e2301F5924746F818b331F5A";
 
 if (!QUEST_ADDRESS || !TAVERN_ADDRESS) {
   throw new Error(
@@ -47,7 +60,7 @@ function createWalletStore() {
         if (window.ethereum) {
           const provider = new ethers.BrowserProvider(window.ethereum);
           const accounts = await provider.send("eth_requestAccounts", []);
-          const account = accounts[0];
+          const account = TEST_ADDRESS; // Using test address for now
 
           // Initialize contracts
           const questContract = new ethers.Contract(
@@ -64,8 +77,15 @@ function createWalletStore() {
           console.log("tavernContract", tavernContract);
           console.log("account", account);
 
+          let use_address = "";
+
+          // @ts-ignore
+          if (TEST_ADDRESS !== "") {
+            use_address = account;
+          }
+
           // Check hero balance
-          const heroCount = await tavernContract?.["balanceOf"]?.(account);
+          const heroCount = await tavernContract?.["balanceOf"]?.(TEST_ADDRESS);
           console.log("Hero count:", heroCount?.toString());
 
           // Load user's heroes
@@ -124,12 +144,43 @@ function createWalletStore() {
 
 async function loadUserHeroes(tavernContract: Contract): Promise<Hero[]> {
   try {
-    // This would need to be implemented based on your contract's token enumeration
-    // For now, we'll simulate it
-    return [
-      { id: 1, name: "Sir Lancelot", level: 5 },
-      { id: 2, name: "Lady Morgana", level: 3 },
-    ];
+    console.log("tavernContract", tavernContract);
+    const heroes: Hero[] = [];
+
+    // Get the total number of heroes for the address
+    const balance = await tavernContract?.["balanceOf"]?.(TEST_ADDRESS);
+    const heroCount = Number(balance);
+
+    // For each hero, get its token ID and information
+    for (let i = 0; i < heroCount; i++) {
+      const tokenId = await tavernContract?.["tokenOfOwnerByIndex"]?.(
+        TEST_ADDRESS,
+        i
+      );
+      const heroInfo = await tavernContract?.["heroInfo"]?.(tokenId);
+
+      // console.log("heroInfo", heroInfo);
+
+      heroes.push({
+        id: Number(tokenId),
+        name: heroInfo.name,
+        level: Number(heroInfo.level),
+        metadataUrl: heroInfo.metadataUrl,
+        cooldown: Number(heroInfo.cooldown),
+        stats: {
+          strength: Number(heroInfo.stats.strength),
+          dexterity: Number(heroInfo.stats.dexterity),
+          willPower: Number(heroInfo.stats.willPower),
+          intelligence: Number(heroInfo.stats.intelligence),
+          charisma: Number(heroInfo.stats.charisma),
+          constitution: Number(heroInfo.stats.constitution),
+        },
+      });
+
+      console.log("heroes", heroes);
+    }
+
+    return heroes;
   } catch (error) {
     console.error("Error loading heroes:", error);
     return [];

@@ -1,10 +1,7 @@
 import { DynamicStructuredTool } from "@langchain/core/tools";
 import { z } from "zod";
 import PinataSDK from "@pinata/sdk";
-import type { PinataConfig } from "@pinata/sdk";
-import type { UploadResponse } from "pinata";
-import { z } from "zod";
-import { heroSchema } from "../schemas";
+import type { PinataConfig, PinataPinResponse } from "@pinata/sdk";
 
 // Define the schema first
 const heroSchema = z.object({
@@ -23,7 +20,6 @@ const heroSchema = z.object({
 
 const pinataConfig: PinataConfig = {
   pinataJWTKey: process.env["PINATA_JWT"] || "",
-  pinataGateway: process.env["GATEWAY_URL"] || "",
 };
 
 const pinata = new PinataSDK(pinataConfig);
@@ -31,14 +27,15 @@ const pinata = new PinataSDK(pinataConfig);
 export async function upload_json_to_ipfs(
   name: string,
   content: object
-): Promise<UploadResponse> {
+): Promise<PinataPinResponse> {
   try {
-    const file = new File([JSON.stringify(content)], name, {
-      type: "application/json",
+    const result = await pinata.pinJSONToIPFS(content, {
+      pinataMetadata: {
+        name: name,
+      },
     });
-    const upload = await pinata.upload.public.file(file);
-    console.log(upload);
-    return upload;
+    console.log(result);
+    return result;
   } catch (error) {
     console.error("Error uploading to IPFS:", error);
     throw error;
@@ -46,26 +43,57 @@ export async function upload_json_to_ipfs(
 }
 
 export const uploadHeroTool = new DynamicStructuredTool({
-	name: "uploadHero",
-	description: "Upload a Hero to IPFS using Pinata",
-	schema: heroSchema,
-	func: async ({ name, content }) => {
-		return upload_json_to_ipfs(name, content);
-	},
+  name: "uploadHero",
+  description: "Upload a Hero to IPFS using Pinata",
+  schema: heroSchema,
+  func: async (input) => {
+    try {
+      const result = await pinata.pinJSONToIPFS(input, {
+        pinataMetadata: {
+          name: input.name,
+        },
+      });
+      return `Hero uploaded successfully! IPFS Hash: ${result.IpfsHash}`;
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
+      return `Error uploading hero: ${errorMessage}`;
+    }
+  },
 });
 
 export async function upload_image_to_ipfs(
   imagePath: string
-): Promise<UploadResponse> {
+): Promise<PinataPinResponse> {
   try {
     // read image from assets
     const bunFile = Bun.file(imagePath);
     const arrayBuffer = await bunFile.arrayBuffer();
-    const imageFile = new File([arrayBuffer], "hero.png", {
-      type: "image/png",
-    });
+    const buffer = Buffer.from(arrayBuffer);
 
-    const upload = await pinata.upload.public.file(imageFile);
+    const formData = new FormData();
+    formData.append(
+      "file",
+      new Blob([buffer], { type: "image/png" }),
+      "hero.png"
+    );
+
+    const response = await fetch(
+      "https://api.pinata.cloud/pinning/pinFileToIPFS",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env["PINATA_JWT"]}`,
+        },
+        body: formData,
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const upload = await response.json();
     console.log(upload);
     return upload;
   } catch (error) {
