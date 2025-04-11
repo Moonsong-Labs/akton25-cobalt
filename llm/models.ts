@@ -60,7 +60,6 @@ export const deepSeekV3 = new ChatOpenAI({
 export const geminiFlash = new ChatGoogleGenerativeAI({
 	model: "gemini-2.0-flash",
 	temperature: 0.7,
-	topP: 0.8,
 });
 
 export const googleAi = new GoogleGenAI({ apiKey: GOOGLE_API_KEY });
