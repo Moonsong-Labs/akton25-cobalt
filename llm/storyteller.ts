@@ -28,7 +28,7 @@ export const instructionsStart = `
   - The story should not include any specific challenges or conflicts.
 `;
 
-const instructionsTask = ` 
+export const instructionsTask = ` 
   - Stick to the established tone and style of the story.
   - If used, the names of the characters should be consistent with the overall story.
   - Your final sentence should present a challenge involving one of the characters that needs to be resolved.
@@ -38,7 +38,7 @@ const instructionsTask = `
   - The challenge should be resolvable by one of the following actions: "attack", "persuade", "bribe", "sneak", "romance" 
 `;
 
-const instructionsEnd = `
+export const instructionsEnd = `
   - Stick to the established tone and style of the story.
   - If used, the names of the characters should be consistent with the overall story.
   - Your final sentence should present a conclusion to the story.
