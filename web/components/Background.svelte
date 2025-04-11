@@ -1,12 +1,12 @@
 <script>
-  import Dragon from "./background-elements/Dragon.svelte";
-  import SwordFight from "./background-elements/SwordFight.svelte";
   import BeerMug from "./background-elements/BeerMug.svelte";
-  import Treasure from "./background-elements/Treasure.svelte";
+  import Crystal from "./background-elements/Crystal.svelte";
+  import Dragon from "./background-elements/Dragon.svelte";
   import Ghost from "./background-elements/Ghost.svelte";
   import Portal from "./background-elements/Portal.svelte";
+  import SwordFight from "./background-elements/SwordFight.svelte";
+  import Treasure from "./background-elements/Treasure.svelte";
   import Wizard from "./background-elements/Wizard.svelte";
-  import Crystal from "./background-elements/Crystal.svelte";
 </script>
 
 <div class="background-container">
