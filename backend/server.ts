@@ -216,7 +216,8 @@ const server = Bun.serve({
 
             const cleaned = await cleanResponse(lastMessage.content);
 
-            jobStore[jobId] = { status: "completed", result: JSON.stringify(cleaned) };
+            // Store the cleaned object directly, not as a string
+            jobStore[jobId] = { status: "completed", result: cleaned }; 
             console.log(`Job ${jobId} completed successfully.`);
           } catch (error) {
             console.error(`Job ${jobId} failed:`, error);
