@@ -1,12 +1,13 @@
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { tool } from "@langchain/core/tools";
-import {MemorySaver} from "@langchain/langgraph";
+import { MemorySaver } from "@langchain/langgraph";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import {
 	gpt4ominiCreative,
 	mistralSmallCreative,
 	llama31withTools,
 } from "./models";
+import {z} from "zod";
 
 const styleGuidelines = `
   - Use descriptive language to create vivid imagery.
@@ -57,12 +58,32 @@ export const systemMessageText = `
  
  ## Instructions
  - You will be given a prompt and you will generate a quest story or biography based on the prompt.
+ - If you asked to return metadata, you will use the generateAsJSONTool to generate a JSON object.
  
  ## Style Guidelines
  ${styleGuidelines}
 `;
 
 const systemMessage = new SystemMessage(systemMessageText);
+
+const generateAsJSONTool = tool(
+	async (args): Promise<JSON> => {
+		console.log("Generating prompt output...");
+		const response =  await promptStoryteller(args.prompt);
+		console.log("Generating JSON object...");
+		let output: JSON = JSON.parse(`
+		 	"content": "${response}",
+		`);
+		return output;
+	},
+	{
+		name: "generateAsMetadata",
+		description: "Generate a JSON object based on the input",
+		schema: z.object({
+			prompt: z.string().describe("The prompt to generate a JSON object"),
+		}),
+	},
+);
 
 export const promptStoryteller = async (input: string) => {
 	const humanMessage = new HumanMessage(`The events as known are: ${input}`);
@@ -73,7 +94,7 @@ export const promptStoryteller = async (input: string) => {
 export const storyTellerAgent = createReactAgent({
     checkpointSaver: new MemorySaver(),
     llm: gpt4ominiCreative,
-	tools: [],
+	tools: [generateAsJSONTool],
 	prompt: systemMessageText,
 	name: "Storyteller",
 });
