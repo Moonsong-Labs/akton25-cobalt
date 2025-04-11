@@ -13,8 +13,16 @@ assert(MISTRAL_API_KEY, "MISTRAL_API_KEY is not set");
 
 export const gpt4omini = new ChatOpenAI({
 	model: "gpt-4o-mini-2024-07-18",
-	temperature: 0,
+	temperature: 0.7,
 });
+
+
+export const gpt4ominiLowTemp = new ChatOpenAI({
+	model: "gpt-4o-mini-2024-07-18",
+	temperature: 0
+});
+
+
 
 export const gpt4ominiCreative = new ChatOpenAI({
 	model: "gpt-4o-mini-2024-07-18",
@@ -64,4 +72,8 @@ export const geminiFlash = new ChatGoogleGenerativeAI({
 
 export const googleAi = new GoogleGenAI({ apiKey: GOOGLE_API_KEY });
 
-
+export const mistralSmall = new ChatMistralAI({
+	apiKey: MISTRAL_API_KEY,
+	model: "mistral-small-latest",
+	temperature: 0.7,
+});
