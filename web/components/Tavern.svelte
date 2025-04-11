@@ -10,6 +10,8 @@
   let selectedHero = userHeroes[0];
   let metadataStatus = "idle"; // idle, loading, success, error
   let activeGateway = "";
+  let heroImage = null;
+  let isImageLoading = false;
 
   const ipfsGateways = [
     "https://gateway.pinata.cloud/ipfs/",
@@ -35,6 +37,7 @@
 
   async function tryFetchMetadata(ipfs_cid_url) {
     metadataStatus = "loading";
+    isImageLoading = true;
     let success = false;
 
     const cid = ipfs_cid_url.split("/").pop();
@@ -49,6 +52,8 @@
           console.log("Metadata:", data);
           metadataStatus = "success";
           success = true;
+          heroImage =
+            "https://placehold.co/200x200/2e2216/ffd700?text=Hero+Image";
           window.open(`${gateway}${cid}`, "_blank");
           break;
         }
@@ -61,6 +66,7 @@
       console.log("All gateways failed to retrieve metadata");
       metadataStatus = "error";
     }
+    isImageLoading = false;
   }
 
   function handleClickOutside(event) {
@@ -73,6 +79,8 @@
     selectedHero = hero;
     metadataStatus = "idle";
     activeGateway = "";
+    heroImage = null;
+    isImageLoading = false;
   }
 
   function setMainHero(hero) {
@@ -129,8 +137,27 @@
           <div class="hero-profile">
             {#if selectedHero}
               <div class="profile-header">
-                <h2 class="profile-name">{selectedHero.name}</h2>
-                <span class="profile-level">Level {selectedHero.level}</span>
+                <div class="hero-image-container">
+                  {#if heroImage}
+                    <img
+                      src={heroImage}
+                      alt={selectedHero.name}
+                      class="hero-image"
+                    />
+                  {:else}
+                    <div class="hero-image-placeholder">
+                      {#if isImageLoading}
+                        <div class="image-spinner"></div>
+                      {:else}
+                        <span class="placeholder-text">Hero Image</span>
+                      {/if}
+                    </div>
+                  {/if}
+                </div>
+                <div class="hero-name-container">
+                  <h2 class="profile-name">{selectedHero.name}</h2>
+                  <span class="profile-level">Level {selectedHero.level}</span>
+                </div>
               </div>
 
               <div class="profile-stats">
@@ -417,10 +444,58 @@
   }
 
   .profile-header {
-    text-align: center;
+    display: flex;
+    align-items: center;
     margin-bottom: 2rem;
     padding-bottom: 1rem;
     border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+  }
+
+  .hero-image-container {
+    width: 200px;
+    height: 200px;
+    margin-right: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .hero-image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: rgba(42, 26, 18, 0.8);
+    border: 2px dashed rgba(255, 215, 0, 0.3);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .placeholder-text {
+    color: rgba(255, 215, 0, 0.5);
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  .image-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 215, 0, 0.3);
+    border-radius: 50%;
+    border-top-color: #ffd700;
+    animation: spin 1s linear infinite;
+  }
+
+  .hero-name-container {
+    flex: 1;
   }
 
   .profile-name {
