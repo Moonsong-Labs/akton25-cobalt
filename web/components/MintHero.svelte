@@ -63,7 +63,6 @@
         isMinting = false;
       }
     } catch (err) {
-      error = "Failed to check minting status";
       isMinting = false;
       console.error(err);
     }
@@ -94,6 +93,7 @@
       <p>
         You can now see your hero in the tavern and select it for your quest.
       </p>
+      <p>Name: {mintedHero.name}</p>
     </div>
   {/if}
 </div>

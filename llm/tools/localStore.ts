@@ -35,7 +35,6 @@ export async function saveJsonLocally(
   name: string,
   content: object
 ): Promise<string> {
-  // Ensure name doesn't have path characters
   const safeName = parse(name).name;
   const filePath = join(JSON_DIR, `${safeName}.json`);
   try {
@@ -53,28 +52,32 @@ export async function saveJsonLocally(
 /**
  * Saves an image file to a local directory in the web/public/images directory.
  * @param sourceImagePath - The path to the source image file.
- * @param targetImageName - The desired name for the saved image file (e.g., "hero_avatar.png").
+ * @param name - The desired name for the saved image file (e.g., "hero_avatar.png").
  * @returns The relative path to the saved image file (e.g., "/images/hero_avatar.png").
  */
 export async function saveImageLocally(
   sourceImagePath: string,
-  targetImageName: string
+  name: string // Corresponds to targetImageName from the tool schema
 ): Promise<string> {
-  // Ensure targetImageName is just a filename
-  const safeTargetName = parse(targetImageName).base;
-  const targetPath = join(IMAGE_DIR, safeTargetName);
+  // Extract base name and extension
+  const parsedName = parse(name);
+  const safeBaseName = parsedName.name;
+  // Use the provided extension, or default to .png if missing
+  const extension = parsedName.ext || '.png';
+  const targetFileName = `${safeBaseName}${extension}`;
 
-  // Ensure .png extension
-  const finalTargetPath = targetPath.endsWith(".png") ? targetPath : `${targetPath}.png`;
+  // Use IMAGE_DIR for the file path
+  const filePath = join(IMAGE_DIR, targetFileName);
 
   try {
     const bunFile = Bun.file(sourceImagePath);
     const arrayBuffer = await bunFile.arrayBuffer();
-    writeFileSync(finalTargetPath, Buffer.from(arrayBuffer));
-    console.log(`Image saved locally to: ${finalTargetPath}`);
+    writeFileSync(filePath, Buffer.from(arrayBuffer));
+    console.log(`Image saved locally to: ${filePath}`);
     // Return path relative to PUBLIC_DIR for web access
-    const relativePath = relative(PUBLIC_DIR, finalTargetPath);
-    return `/${relativePath.replace(/\\/g, '/')}`; // Ensure forward slashes for web path
+    const relativePath = relative(PUBLIC_DIR, filePath);
+    // Ensure forward slashes for web path, and add leading slash
+    return `/${relativePath.replace(/\\/g, '/')}`;
   } catch (error) {
     console.error("Error saving image locally:", error);
     throw error;
@@ -103,7 +106,7 @@ export const saveImageLocallyTool = new DynamicStructuredTool({
     sourceImagePath: z.string().describe("The file path of the source image."),
     targetImageName: z
       .string()
-      .describe("The desired name for the saved image file (e.g., hero_avatar.png)."),
+      .describe("The desired name for the saved image file (e.g., 'Eliza Moonblood.png')."),
   }),
   func: async ({ sourceImagePath, targetImageName }) => {
     return saveImageLocally(sourceImagePath, targetImageName);
