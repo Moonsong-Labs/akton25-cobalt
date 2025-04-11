@@ -96,11 +96,89 @@ const server = Bun.serve({
       },
     },
     
-    "/story-text":{
-      
-      // take input
-      // give text output
+    "/story-text": {
+      GET: async (req) => {
+        const url = new URL(req.url);
+        const inputText = url.searchParams.get("input");
+        // Get existing threadId or generate a new one if not provided
+        let threadId = url.searchParams.get("threadId"); 
+
+        if (!inputText) {
+          return new Response("Missing 'input' query parameter", {
+            status: 400,
+            headers: corsHeaders,
+          });
+        }
+        
+        // Generate a new threadId if none is provided in the request
+        if (!threadId) {
+          threadId = uuidv4();
+          console.log(`No threadId provided for story-text request. Generated new one: ${threadId}`);
+        }
+
+        const jobId = uuidv4();
+        jobStore[jobId] = { status: "pending" };
+
+        (async () => {
+          try {
+            const input = {
+              messages: [
+                {
+                  role: "user",
+                  content: inputText,
+                },
+              ],
+            };
+
+            console.log("Input for story-text job", jobId, ":", input);
+            // Use the provided threadId for context
+            const config = { configurable: { thread_id: threadId } }; 
+
+            const result = await app.invoke(input, config);
+            console.log("Result for story-text job", jobId, ":", result);
+
+            const lastMessage = result.messages[result.messages.length - 1];
+            assert(lastMessage?.content, "No last message content found");
+
+
+            // Store the result as a specific JSON object
+            jobStore[jobId] = { status: "completed", result: { text: lastMessage.content } };
+            console.log(`Job ${jobId} (Story Text) completed successfully.`);
+          } catch (error) {
+            console.error(`Job ${jobId} (Story Text) failed:`, error);
+            jobStore[jobId] = {
+              status: "failed",
+              error: error instanceof Error ? error.message : String(error),
+            };
+          }
+        })(); 
+
+        return Response.json(
+          { jobId, threadId }, // Return both jobId and threadId
+          {
+            status: 202, // Accepted
+            headers: corsHeaders,
+          }
+        );
+      },
     },
+
+    "/story-text/status/:jobId": {
+       GET: (req) => {
+         const jobId = req.params.jobId;
+         const job = jobStore[jobId];
+
+         if (!job) {
+           return new Response("Job not found", {
+             status: 404,
+             headers: corsHeaders,
+           });
+         }
+
+         // Return the stored job status/result/error
+         return Response.json(job, { headers: corsHeaders });
+       },
+     },
 
     "/mint": {
       GET: async (req) => {
