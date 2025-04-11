@@ -6,6 +6,7 @@
   import Tavern from "./components/Tavern.svelte";
   import Background from "./components/Background.svelte";
   import QuestSection from "./components/QuestSection.svelte";
+  import HeroSelection from "./components/HeroSelection.svelte";
   import { wallet } from "./stores/wallet.ts";
   import { quest } from "./stores/quest.ts";
   import MintHero from "./components/MintHero.svelte";
@@ -14,6 +15,7 @@
   let showTavern = false;
   let showConnectionPrompt = false;
   let promptMessage = "";
+  let mainHero = null;
 
   function showPrompt(message) {
     promptMessage = message;
@@ -33,6 +35,14 @@
         showTavern = !showTavern;
       }
     }
+  }
+
+  function handleSetMainHero(event) {
+    mainHero = event.detail.hero;
+  }
+
+  function handleOpenTavern() {
+    showTavern = true;
   }
 </script>
 
@@ -65,21 +75,22 @@
       {:else}
         <div class="connected-wallet">
           <span class="wallet-address"
-            >Connected: {$wallet.account.slice(0, 6)}...{$wallet.account.slice(
-              -4
-            )}</span
+            >Your magical sigil has been inscribed: {$wallet.account.slice(
+              0,
+              6
+            )}...{$wallet.account.slice(-4)}</span
           >
-          <div class="hero-count">
+          <!-- <div class="hero-count">
             <span class="text-2xl">⚔️</span>
-            <span>Heroes: {$wallet.heroCount}</span>
-          </div>
-          <MintHero />
+            <span>Heroes in your party: {$wallet.heroCount}</span>
+          </div> -->
         </div>
       {/if}
     </div>
 
     {#if $wallet.isConnected}
-      <QuestSection />
+      <HeroSelection {mainHero} on:openTavern={handleOpenTavern} />
+      <QuestSection {mainHero} />
     {/if}
   </main>
 
@@ -98,20 +109,9 @@
   <Tavern
     {showTavern}
     userHeroes={$wallet.userHeroes}
+    {mainHero}
     on:close={() => (showTavern = false)}
+    on:setMainHero={handleSetMainHero}
   />
   <Footer isConnected={$wallet.isConnected} {handleNavClick} />
 </div>
-
-<style>
-  /* ... existing styles ... */
-
-  .hero-count {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin: 0.5rem 0;
-    color: var(--dnd-gold);
-    font-family: "Cinzel", serif;
-  }
-</style>

@@ -4,9 +4,62 @@
 
   export let showTavern;
   export let userHeroes;
+  export let mainHero = null;
   const dispatch = createEventDispatcher();
 
   let selectedHero = userHeroes[0];
+  let metadataStatus = "idle"; // idle, loading, success, error
+  let activeGateway = "";
+
+  const ipfsGateways = [
+    "https://gateway.pinata.cloud/ipfs/",
+    "https://cf-ipfs.com/ipfs/",
+    "https://ipfs.io/ipfs/",
+    "https://dweb.link/ipfs/",
+    "https://4everland.io/ipfs/",
+    "https://w3s.link/ipfs/",
+    "https://nftstorage.link/ipfs/",
+    "https://storry.tv/ipfs/",
+    "https://cloudflare-ipfs.com/ipfs/",
+    "https://gateway.originprotocol.com/ipfs/",
+    "https://gateway.temporal.cloud/ipfs/",
+    "https://gateway.ipfs.io/ipfs/",
+    "https://ipfs.eternum.io/ipfs/",
+    "https://gateway.serph.network/ipfs/",
+    "https://hardbin.com/ipfs/",
+    "https://ipfs.jes.xxx/ipfs/",
+    "https://gateway.blocksec.com/ipfs/",
+    "https://ipfs.mrh.io/ipfs/",
+    "https://gateway.fleek.co/ipfs/",
+  ];
+
+  async function tryFetchMetadata(cid) {
+    metadataStatus = "loading";
+    let success = false;
+
+    for (const gateway of ipfsGateways) {
+      try {
+        console.log(`Trying gateway: ${gateway}${cid}`);
+        const response = await fetch(`${gateway}${cid}`, { timeout: 10000 });
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Success! Found metadata at:", `${gateway}${cid}`);
+          console.log("Metadata:", data);
+          metadataStatus = "success";
+          success = true;
+          window.open(`${gateway}${cid}`, "_blank");
+          break;
+        }
+      } catch (error) {
+        console.error(`Failed with gateway ${gateway}:`, error);
+      }
+    }
+
+    if (!success) {
+      console.log("All gateways failed to retrieve metadata");
+      metadataStatus = "error";
+    }
+  }
 
   function handleClickOutside(event) {
     if (event.target.classList.contains("backdrop")) {
@@ -16,6 +69,14 @@
 
   function selectHero(hero) {
     selectedHero = hero;
+    metadataStatus = "idle";
+    activeGateway = "";
+  }
+
+  function setMainHero(hero) {
+    mainHero = hero;
+    dispatch("setMainHero", { hero });
+    dispatch("close");
   }
 
   onMount(() => {
@@ -142,13 +203,30 @@
                     <span class="cooldown-label">Cooldown:</span>
                     <span class="cooldown-value">{selectedHero.cooldown}</span>
                   </div>
-                  <a
-                    href={selectedHero.metadataUrl}
-                    target="_blank"
-                    class="metadata-link"
-                  >
-                    View Metadata
-                  </a>
+                  <div class="metadata-actions">
+                    <button
+                      class="metadata-link"
+                      on:click={() =>
+                        tryFetchMetadata(selectedHero.metadataUrl)}
+                      disabled={metadataStatus === "loading" ||
+                        metadataStatus === "error"}
+                    >
+                      {#if metadataStatus === "loading"}
+                        <span class="spinner"></span>
+                        <span class="loading-text">Finding Metadata...</span>
+                      {:else if metadataStatus === "error"}
+                        Couldn't find metadata
+                      {:else}
+                        Find Metadata
+                      {/if}
+                    </button>
+                    <button
+                      class="set-main-hero"
+                      on:click={() => setMainHero(selectedHero)}
+                    >
+                      Set as Main Hero
+                    </button>
+                  </div>
                 </div>
               </div>
             {/if}
@@ -454,6 +532,11 @@
     color: #fff;
   }
 
+  .metadata-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
   .metadata-link {
     color: #d4af37;
     text-decoration: none;
@@ -462,12 +545,21 @@
     border-radius: 4px;
     transition: all 0.3s ease;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    background: transparent;
+    cursor: pointer;
+    font-family: "Cinzel", serif;
+    font-size: 0.9rem;
   }
 
-  .metadata-link:hover {
+  .metadata-link:hover:not(:disabled) {
     background: #ffd700;
     color: #000;
     box-shadow: 0 4px 8px rgba(255, 215, 0, 0.3);
+  }
+
+  .metadata-link:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
   }
 
   .level-badge {
@@ -492,5 +584,47 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    border-radius: 50%;
+    border-top-color: #ffd700;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+  }
+
+  .loading-text {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .set-main-hero {
+    color: #000;
+    background: #ffd700;
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    font-family: "Cinzel", serif;
+    font-size: 0.9rem;
+  }
+
+  .set-main-hero:hover {
+    background: #ffd700;
+    box-shadow: 0 4px 8px rgba(255, 215, 0, 0.3);
+    transform: translateY(-1px);
   }
 </style>
