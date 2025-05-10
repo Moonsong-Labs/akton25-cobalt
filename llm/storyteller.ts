@@ -1,15 +1,13 @@
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { tool } from "@langchain/core/tools";
-import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+import { MemorySaver } from "@langchain/langgraph";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
-import { z } from "zod";
 import {
-  deepSeekV3,
-  geminiFlash,
-  gpt4omini,
-  llama4Maverick,
-  mistralSmall,
+	gpt4ominiCreative,
+	mistralSmallCreative,
+	llama31withTools,
 } from "./models";
+import {z} from "zod";
 
 const styleGuidelines = `
   - Use descriptive language to create vivid imagery.
@@ -20,8 +18,7 @@ const styleGuidelines = `
   - Your output should be a maximum of 3 sentences but prioritize clarity and coherence.
 `;
 
-const instructionsStart = ` 
-  - You will be given a prompt and you will generate a story based on the prompt.
+export const instructionsStart = ` 
   - Define the setting and introduce the main characters.
   - Provide a brief background on how the characters got together.
   - Establish the tone and style of the story.
@@ -31,8 +28,7 @@ const instructionsStart = `
   - The story should not include any specific challenges or conflicts.
 `;
 
-const instructionsTask = ` 
-  - You will be given a prompt and you will generate a story based on the prompt. 
+export const instructionsTask = ` 
   - Stick to the established tone and style of the story.
   - If used, the names of the characters should be consistent with the overall story.
   - Your final sentence should present a challenge involving one of the characters that needs to be resolved.
@@ -42,15 +38,14 @@ const instructionsTask = `
   - The challenge should be resolvable by one of the following actions: "attack", "persuade", "bribe", "sneak", "romance" 
 `;
 
-const instructionsEnd = `
-  - You will be given a prompt and you will generate a story based on the prompt.
+export const instructionsEnd = `
   - Stick to the established tone and style of the story.
   - If used, the names of the characters should be consistent with the overall story.
   - Your final sentence should present a conclusion to the story.
   - Based on the success or failure of the characters' previous actions, provide a resolution that ties up the narrative.
 `;
 
-const instructionsBio = `
+export const instructionsBio = `
   - Using a provided name and stats, create a biography for a character.
   - The biography should include the character's background, personality traits, and motivations.
   - Avoid using the name more than once.
@@ -58,26 +53,48 @@ const instructionsBio = `
 `;
 
 export const systemMessageText = `
-  ## Role
-  You are a storyteller.
+ ## Role
+ You are a storyteller.
  
  ## Instructions
-  
-  ## Style Guidelines
-  ${styleGuidelines}
-  `;
+ - You will be given a prompt and you will generate a quest story or biography based on the prompt.
+ - If you are asked to return metadata, you will use the generateAsJSONTool to return your response as a JSON object in format { story: [YOUR_OUTPUT] }.
+ 
+ ## Style Guidelines
+ ${styleGuidelines}
+`;
 
 const systemMessage = new SystemMessage(systemMessageText);
 
+const generateAsJSONTool = tool(
+	async (args): Promise<JSON> => {
+		console.log("Generating prompt output...");
+		const response =  await promptStoryteller(args.prompt);
+		console.log("Generating JSON object...");
+		const output: JSON = JSON.parse(`
+		 	story: ${response},
+		`);
+		return output;
+	},
+	{
+		name: "generateAsMetadata",
+		description: "Generate a JSON object based on the input",
+		schema: z.object({
+			prompt: z.string().describe("The prompt to generate a JSON object"),
+		}),
+	},
+);
+
 export const promptStoryteller = async (input: string) => {
-  const humanMessage = new HumanMessage(`The events as known are: ${input}`);
-  const { content } = await geminiFlash.invoke([systemMessage, humanMessage]);
-  return content;
+	const humanMessage = new HumanMessage(`The events as known are: ${input}`);
+	const { content } = await gpt4ominiCreative.invoke([systemMessage, humanMessage]);
+	return content;
 };
 
 export const storyTellerAgent = createReactAgent({
-	llm: gpt4omini,
-	tools: [],
+    checkpointSaver: new MemorySaver(),
+    llm: gpt4ominiCreative,
+	tools: [generateAsJSONTool],
 	prompt: systemMessageText,
 	name: "Storyteller",
 });

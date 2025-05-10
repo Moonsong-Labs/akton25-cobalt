@@ -16,32 +16,26 @@ export const gpt4omini = new ChatOpenAI({
 	temperature: 0.7,
 });
 
-
 export const gpt4ominiLowTemp = new ChatOpenAI({
 	model: "gpt-4o-mini-2024-07-18",
 	temperature: 0
 });
 
+export const gpt4ominiCreative = new ChatOpenAI({
+	model: "gpt-4o-mini-2024-07-18",
+	temperature: 0.7,
+	topP: 0.8,
+});
 
+export const mistralSmallCreative = new ChatMistralAI({
+	apiKey: MISTRAL_API_KEY,
+	model: "mistral-small-latest",
+	temperature: 0.7,
+	topP: 0.8,
+});
 
 export const llama31withTools = new ChatOpenAI({
 	model: "klusterai/Meta-Llama-3.1-405B-Instruct-Turbo", // tools supported
-	configuration: {
-		baseURL: "https://api.kluster.ai/v1",
-	},
-	apiKey: KLUSTER_API_KEY,
-});
-
-export const llama4Maverick = new ChatOpenAI({
-	model: "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8", // tools supported
-	configuration: {
-		baseURL: "https://api.kluster.ai/v1",
-	},
-	apiKey: KLUSTER_API_KEY,
-});
-
-export const deepSeekV3 = new ChatOpenAI({
-	model: "deepseek-ai/DeepSeek-V3", // tools supported
 	configuration: {
 		baseURL: "https://api.kluster.ai/v1",
 	},
@@ -55,8 +49,3 @@ export const geminiFlash = new ChatGoogleGenerativeAI({
 
 export const googleAi = new GoogleGenAI({ apiKey: GOOGLE_API_KEY });
 
-export const mistralSmall = new ChatMistralAI({
-	apiKey: MISTRAL_API_KEY,
-	model: "mistral-small-latest",
-	temperature: 0.7,
-});

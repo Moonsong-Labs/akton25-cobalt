@@ -6,7 +6,7 @@ import { dreamerAgent } from "./dreamer";
 import { invokerAgent } from "./invoker";
 import { gpt4omini, gpt4ominiLowTemp, llama31withTools } from "./models";
 import { recruiterAgent } from "./recruiter";
-import { storyTellerAgent } from "./storyteller";
+import {storyTellerAgent, instructionsBio, instructionsStart, instructionsTask} from "./storyteller";
 import {
   createQuestTool,
   generateAndSaveHeroMetadataTool,
@@ -45,26 +45,27 @@ const GAME_LOGIC = `
 
   ### Character generation
   - When needing to create a new hero, ask the recruiter agent to generate you some random stats and name for a hero.
-  - Depending on which stats recruit gives you, create a biography for them with the storyteller.
+  - Depending on which stats recruit gives you, create a biography for them with the storyteller using ${instructionsBio} as instructions.
   - Depending on the biography given to you, ask the dreamer to create an image of them and upload it to ipfs with uploadImageTool.
   - Each character only requires a single image, identifiedably by their image name.
   - Ensure the dreamer returns the image name when it makes you an image.
   - Upload character image to ipfs using uploadImageTool.
   - Use the uploadHeroTool to persist a character to ipfs.
-  - Save generated hero images locally with saveImageLocallyTool  <heroname>
-  - Save generated metadata locally with the  generateAndSaveHeroMetadataTool <heroname>
+  - Display the image using the displayImageTool using the local image path.
+  - Save generated hero images locally with saveImageLocallyTool  <heroname> (no spaces allLowercase)
+  - Save generated metadata locally with the  generateAndSaveHeroMetadataTool <heroname> (no spaces allLowercase)
   - **IMPORTANT** Mint character on chain by using the recruitHeroTool. Pass in the wallet address of the original user query to this tool. The cid should be a complete ifps url as the metadata uri parameter.
   - Return the character name to the user.
 
   ### Creating a new Quest
-  - When a new quest is to be started, ask the storyTellerAgent to generate a new quest description and scenario.
+  - When a new quest is to be started, ask the storyTellerAgent to generate a new quest description and scenario using ${instructionsTask} as instructions.
   - When a quest is created, called the createQuestTool to store it on chain.
   
   ### Starting a Quest
   - When a quest is to be started, call the startQuestTool to create a new quest.
 
   ### Scenario generation
-  - When needing to create a new scenario, ask the storyteller to create a scenario name and description.
+  - When needing to create a new scenario, ask the storyteller to create a scenario name and description using ${instructionsStart} as instructions.
   - Ask the invoker to create 3 stages for the scenario with increasing difficulty.
   - Invoker will return only one stage at a time. You will need to ask the invoker for the next stage until all 3 are created.
   - For each stage, ask the storyteller to create a stage description and add it to the stage metadata.
